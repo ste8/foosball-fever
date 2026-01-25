@@ -1,5 +1,6 @@
 using FoosballAlgos.Domain;
 using FoosballAlgos.Services;
+using FoosballAlgos.Tests.Helpers;
 
 namespace FoosballAlgos.Tests.Integration;
 
@@ -37,8 +38,7 @@ public class DepthTwoTests
         var result = _sut.GeneratePairs(attackers, defenders, history, TimeSpan.FromSeconds(5));
 
         // Assert
-        result.HasSolution.Should().BeTrue();
-        result.Outcome.Should().Be(RunOutcome.Completed);
+        MatchmakingAssertions.AssertValidCompletedResult(result, attackers, defenders, history);
         result.NoRepeatDepthAchieved.Should().Be(2);
         result.MaxNoRepeatDepth.Should().Be(2);
 
@@ -84,16 +84,15 @@ public class DepthTwoTests
         var result = _sut.GeneratePairs(attackers, defenders, history, TimeSpan.FromSeconds(5));
 
         // Assert
-        result.HasSolution.Should().BeTrue();
-        result.Outcome.Should().Be(RunOutcome.Completed);
+        MatchmakingAssertions.AssertValidCompletedResult(result, attackers, defenders, history);
         result.NoRepeatDepthAchieved.Should().Be(2);
         result.MaxNoRepeatDepth.Should().Be(2);
 
-        // Verify no pairs from history[0] or history[1] are used
+        // Explicitly verify no pairs from history[0] or history[1] are used
         var teamPairs = result.Teams.Select(t => t.ToUnorderedPair()).ToHashSet();
         var forbiddenPairs = history.SelectMany(r => r.Pairs).ToHashSet();
-
-        teamPairs.Should().NotIntersectWith(forbiddenPairs);
+        teamPairs.Should().NotIntersectWith(forbiddenPairs,
+            because: "depth 2 means no pairs from rounds 0 or 1 should appear");
     }
 
     [Fact]
@@ -122,18 +121,8 @@ public class DepthTwoTests
         // Act
         var result = _sut.GeneratePairs(attackers, defenders, history, TimeSpan.FromSeconds(5));
 
-        // Assert
-        result.HasSolution.Should().BeTrue();
-        result.Outcome.Should().Be(RunOutcome.Completed);
-        result.StopReason.Should().Be(StopReason.None);
-
-        // Each defender appears exactly once
-        result.Teams.Select(t => t.Defender).Should().OnlyHaveUniqueItems();
-        result.Teams.Select(t => t.Defender).Should().BeEquivalentTo(defenders);
-
-        // Each attacker appears exactly once
-        result.Teams.Select(t => t.Attacker).Should().OnlyHaveUniqueItems();
-        result.Teams.Select(t => t.Attacker).Should().BeEquivalentTo(attackers);
+        // Assert - all invariants via helper
+        MatchmakingAssertions.AssertValidCompletedResult(result, attackers, defenders, history);
 
         // NoRepeatDepthAchieved equals MaxNoRepeatDepth
         result.NoRepeatDepthAchieved.Should().Be(result.MaxNoRepeatDepth);
@@ -167,7 +156,9 @@ public class DepthTwoTests
         var result = _sut.GeneratePairs(attackers, defenders, history, TimeSpan.FromSeconds(5));
 
         // Assert
+        MatchmakingAssertions.AssertValidCompletedResult(result, attackers, defenders, history);
         result.NoRepeatDepthAchieved.Should().Be(2);
-        result.RepeatedPairsTotal.Should().Be(0);
+        result.RepeatedPairsTotal.Should().Be(0,
+            because: "achieving full depth means no pairs repeat from history");
     }
 }

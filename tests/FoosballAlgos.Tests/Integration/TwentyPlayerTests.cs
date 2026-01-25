@@ -1,5 +1,6 @@
 using FoosballAlgos.Domain;
 using FoosballAlgos.Services;
+using FoosballAlgos.Tests.Helpers;
 
 namespace FoosballAlgos.Tests.Integration;
 
@@ -24,8 +25,7 @@ public class TwentyPlayerTests
             attackers, defenders, history, TimeSpan.FromSeconds(30), seed: 42);
 
         // Assert
-        result.HasSolution.Should().BeTrue();
-        result.Outcome.Should().Be(RunOutcome.Completed);
+        MatchmakingAssertions.AssertValidCompletedResult(result, attackers, defenders, history);
         result.MaxNoRepeatDepth.Should().BeGreaterOrEqualTo(8);
         result.NoRepeatDepthAchieved.Should().Be(result.MaxNoRepeatDepth);
     }
@@ -43,15 +43,8 @@ public class TwentyPlayerTests
             attackers, defenders, history, TimeSpan.FromSeconds(30));
 
         // Assert
+        MatchmakingAssertions.AssertValidCompletedResult(result, attackers, defenders, history);
         result.Teams.Should().HaveCount(10);
-
-        var usedAttackers = result.Teams.Select(t => t.Attacker).ToList();
-        var usedDefenders = result.Teams.Select(t => t.Defender).ToList();
-
-        usedAttackers.Should().OnlyHaveUniqueItems();
-        usedDefenders.Should().OnlyHaveUniqueItems();
-        usedAttackers.Should().BeEquivalentTo(attackers);
-        usedDefenders.Should().BeEquivalentTo(defenders);
     }
 
     [Fact]
@@ -67,14 +60,15 @@ public class TwentyPlayerTests
             attackers, defenders, history, TimeSpan.FromSeconds(30));
 
         // Assert
-        var teamPairs = result.Teams.Select(t => t.ToUnorderedPair()).ToHashSet();
+        MatchmakingAssertions.AssertValidCompletedResult(result, attackers, defenders, history);
 
-        // Check that no pair from the first 8 rounds appears in result
+        // Explicitly verify no pair from the first 8 rounds appears in result
+        var teamPairs = result.Teams.Select(t => t.ToUnorderedPair()).ToHashSet();
         for (int r = 0; r < 8; r++)
         {
-            var roundPairs = history[r].Pairs.ToHashSet();
+            var roundPairs = history[r].ToPairSet();
             teamPairs.Should().NotIntersectWith(roundPairs,
-                because: $"depth {result.NoRepeatDepthAchieved} means no pairs from rounds 0-{result.NoRepeatDepthAchieved - 1}");
+                because: $"depth {result.NoRepeatDepthAchieved} means no pairs from round {r}");
         }
     }
 
@@ -94,6 +88,7 @@ public class TwentyPlayerTests
             attackers, defenders, history, TimeSpan.FromSeconds(30));
 
         // Assert
+        MatchmakingAssertions.AssertValidCompletedResult(result, attackers, defenders, history);
         result.MaxNoRepeatDepth.Should().Be(8);
         result.NoRepeatDepthAchieved.Should().Be(8);
     }
@@ -114,6 +109,7 @@ public class TwentyPlayerTests
             attackers, defenders, history, TimeSpan.FromSeconds(30));
 
         // Assert
+        MatchmakingAssertions.AssertValidCompletedResult(result, attackers, defenders, history);
         // Offsets 0-9 cover all possibilities, so we can achieve depth 9
         // (avoid rounds 0-8, use offset 9 which is round 9)
         result.MaxNoRepeatDepth.Should().Be(9);
@@ -135,8 +131,7 @@ public class TwentyPlayerTests
         sw.Stop();
 
         // Assert
-        result.HasSolution.Should().BeTrue();
-        result.Outcome.Should().Be(RunOutcome.Completed);
+        MatchmakingAssertions.AssertValidCompletedResult(result, attackers, defenders, history);
         result.Teams.Should().HaveCount(20);
 
         // Should complete in reasonable time (algorithm is O(E*sqrt(V)))

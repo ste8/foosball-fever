@@ -1,5 +1,6 @@
 using FoosballAlgos.Domain;
 using FoosballAlgos.Services;
+using FoosballAlgos.Tests.Helpers;
 
 namespace FoosballAlgos.Tests.Integration;
 
@@ -26,8 +27,7 @@ public class InevitabilityTests
         var result = _sut.GeneratePairs(attackers, defenders, history, TimeSpan.FromSeconds(5));
 
         // Assert
-        result.HasSolution.Should().BeTrue();
-        result.Outcome.Should().Be(RunOutcome.Completed);
+        MatchmakingAssertions.AssertValidCompletedResult(result, attackers, defenders, history);
 
         // With 4 rounds, offsets 0,1,2,3 are covered
         // We can avoid 0,1,2 by using offset 3 -> depth 3
@@ -63,7 +63,7 @@ public class InevitabilityTests
         var result = _sut.GeneratePairs(attackers, defenders, history, TimeSpan.FromSeconds(5));
 
         // Assert
-        result.HasSolution.Should().BeTrue();
+        MatchmakingAssertions.AssertValidSuccessfulResult(result, attackers, defenders, history);
         result.Outcome.Should().Be(RunOutcome.Completed);
 
         // We can avoid round 0 by using round 1's matching, so depth 1
@@ -71,7 +71,8 @@ public class InevitabilityTests
         result.NoRepeatDepthAchieved.Should().Be(1);
 
         // But we will have repeated pairs (from round 1)
-        result.RepeatedPairsTotal.Should().Be(2);
+        result.RepeatedPairsTotal.Should().Be(2,
+            because: "all pairs in result must come from history since all possible pairs are covered");
     }
 
     [Fact]
@@ -88,8 +89,7 @@ public class InevitabilityTests
         var result = _sut.GeneratePairs(attackers, defenders, history, TimeSpan.FromSeconds(5));
 
         // Assert
-        result.HasSolution.Should().BeTrue();
-        result.Outcome.Should().Be(RunOutcome.Completed);
+        MatchmakingAssertions.AssertValidCompletedResult(result, attackers, defenders, history);
 
         // Can avoid rounds 0,1 by using offset 2 (round 2's matching)
         result.MaxNoRepeatDepth.Should().Be(2);
@@ -126,8 +126,7 @@ public class InevitabilityTests
         var result = _sut.GeneratePairs(attackers, defenders, history, TimeSpan.FromSeconds(5));
 
         // Assert
-        result.HasSolution.Should().BeTrue();
-        result.Outcome.Should().Be(RunOutcome.Completed);
+        MatchmakingAssertions.AssertValidCompletedResult(result, attackers, defenders, history);
         result.NoRepeatDepthAchieved.Should().Be(2);
 
         // The only valid matching at depth 2 is offset 2: (A1,D3), (A2,D1), (A3,D2)
@@ -139,7 +138,8 @@ public class InevitabilityTests
             new("A3", "D2")
         };
 
-        teamPairs.Should().BeEquivalentTo(expectedPairs);
+        teamPairs.Should().BeEquivalentTo(expectedPairs,
+            because: "this is the only matching that avoids both history rounds");
     }
 
     [Fact]
@@ -168,14 +168,19 @@ public class InevitabilityTests
         var result = _sut.GeneratePairs(attackers, defenders, history, TimeSpan.FromSeconds(5));
 
         // Assert
-        result.HasSolution.Should().BeTrue();
-        result.Outcome.Should().Be(RunOutcome.Completed);
+        MatchmakingAssertions.AssertValidCompletedResult(result, attackers, defenders, history);
 
         // Many pairs are not covered, so high depth is achievable
         // Forbidden: (A1,D1), (A2,D2), (A3,D3), (A4,D4)
         // Valid matching exists avoiding all of these, e.g.: (A1,D2), (A2,D1), (A3,D4), (A4,D3)
         result.NoRepeatDepthAchieved.Should().Be(2);
         result.MaxNoRepeatDepth.Should().Be(2);
+
+        // Explicitly verify no repeated pairs from history
+        var teamPairs = result.Teams.Select(t => t.ToUnorderedPair()).ToHashSet();
+        var historyPairs = history.SelectMany(r => r.Pairs).ToHashSet();
+        teamPairs.Should().NotIntersectWith(historyPairs,
+            because: "depth 2 means no pairs from either history round");
     }
 
     private static IReadOnlyList<Round> BuildRotationHistory(

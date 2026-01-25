@@ -1,5 +1,6 @@
 using FoosballAlgos.Domain;
 using FoosballAlgos.Services;
+using FoosballAlgos.Tests.Helpers;
 
 namespace FoosballAlgos.Tests.Integration;
 
@@ -30,7 +31,7 @@ public class MixedMembershipTests
         var result = _sut.GeneratePairs(attackers, defenders, history, TimeSpan.FromSeconds(5));
 
         // Assert
-        result.HasSolution.Should().BeTrue();
+        MatchmakingAssertions.AssertValidCompletedResult(result, attackers, defenders, history);
 
         // Only (A1, D1) from history is relevant
         // So we can achieve depth 1 with (A1, D2) and (A2, D1)
@@ -59,7 +60,7 @@ public class MixedMembershipTests
         var result = _sut.GeneratePairs(attackers, defenders, history, TimeSpan.FromSeconds(5));
 
         // Assert
-        result.HasSolution.Should().BeTrue();
+        MatchmakingAssertions.AssertValidCompletedResult(result, attackers, defenders, history);
 
         // Only (A3, D3) is a constraint from history
         // We can avoid it by matching A3 with NewD1 or NewD2
@@ -92,12 +93,13 @@ public class MixedMembershipTests
         var result = _sut.GeneratePairs(attackers, defenders, history, TimeSpan.FromSeconds(5));
 
         // Assert
-        result.HasSolution.Should().BeTrue();
+        MatchmakingAssertions.AssertValidCompletedResult(result, attackers, defenders, history);
 
         // No history pairs are relevant, so we can achieve full depth
         result.NoRepeatDepthAchieved.Should().Be(2);
         result.MaxNoRepeatDepth.Should().Be(2);
-        result.RepeatedPairsTotal.Should().Be(0);
+        result.RepeatedPairsTotal.Should().Be(0,
+            because: "no history pairs involve current players");
     }
 
     [Fact]
@@ -122,7 +124,7 @@ public class MixedMembershipTests
         var result = _sut.GeneratePairs(attackers, defenders, history, TimeSpan.FromSeconds(5));
 
         // Assert
-        result.HasSolution.Should().BeTrue();
+        MatchmakingAssertions.AssertValidCompletedResult(result, attackers, defenders, history);
 
         // Only (A1, D1) is fully relevant
         // Can achieve depth 1 by avoiding (A1, D1)
@@ -154,7 +156,7 @@ public class MixedMembershipTests
         var result = _sut.GeneratePairs(attackers, defenders, history, TimeSpan.FromSeconds(5));
 
         // Assert
-        result.HasSolution.Should().BeTrue();
+        MatchmakingAssertions.AssertValidCompletedResult(result, attackers, defenders, history);
 
         // (X, OldD1) doesn't constrain us because OldD1 is not present
         // (A1, OldD2) doesn't constrain us because OldD2 is not present
@@ -184,7 +186,7 @@ public class MixedMembershipTests
         var result = _sut.GeneratePairs(attackers, defenders, history, TimeSpan.FromSeconds(5));
 
         // Assert
-        result.HasSolution.Should().BeTrue();
+        MatchmakingAssertions.AssertValidCompletedResult(result, attackers, defenders, history);
 
         // Round 0 is empty, round 1 has constraints
         // We can achieve depth 2 by avoiding round 1's pairs

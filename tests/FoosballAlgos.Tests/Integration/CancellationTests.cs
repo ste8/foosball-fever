@@ -1,5 +1,6 @@
 using FoosballAlgos.Domain;
 using FoosballAlgos.Services;
+using FoosballAlgos.Tests.Helpers;
 
 namespace FoosballAlgos.Tests.Integration;
 
@@ -14,12 +15,13 @@ public class CancellationTests
         // Arrange
         var attackers = new[] { "A1", "A2", "A3" };
         var defenders = new[] { "D1", "D2", "D3" };
+        var history = Array.Empty<Round>();
         using var cts = new CancellationTokenSource();
         cts.Cancel(); // Pre-cancelled
 
         // Act
         var result = _sut.GeneratePairs(
-            attackers, defenders, Array.Empty<Round>(),
+            attackers, defenders, history,
             TimeSpan.FromSeconds(5),
             ct: cts.Token);
 
@@ -31,6 +33,10 @@ public class CancellationTests
         if (result.Outcome == RunOutcome.Stopped)
         {
             result.StopReason.Should().Be(StopReason.CancelledByUser);
+        }
+        else if (result.HasSolution)
+        {
+            MatchmakingAssertions.AssertValidSuccessfulResult(result, attackers, defenders, history);
         }
     }
 
@@ -67,6 +73,10 @@ public class CancellationTests
             result.StopReason.Should().Be(StopReason.CancelledByUser);
             result.Teams.Should().BeEmpty();
         }
+        else
+        {
+            MatchmakingAssertions.AssertValidSuccessfulResult(result, attackers, defenders, history);
+        }
     }
 
     [Fact]
@@ -87,9 +97,7 @@ public class CancellationTests
         // Either way, if HasSolution is true, result should be valid
         if (result.HasSolution)
         {
-            result.Teams.Should().HaveCount(10);
-            result.Teams.Select(t => t.Attacker).Should().OnlyHaveUniqueItems();
-            result.Teams.Select(t => t.Defender).Should().OnlyHaveUniqueItems();
+            MatchmakingAssertions.AssertValidSuccessfulResult(result, attackers, defenders, history);
         }
         else
         {
@@ -104,10 +112,11 @@ public class CancellationTests
         // Arrange
         var attackers = new[] { "A1", "A2" };
         var defenders = new[] { "D1", "D2" };
+        var history = Array.Empty<Round>();
 
         // Act - Zero time budget
         var result = _sut.GeneratePairs(
-            attackers, defenders, Array.Empty<Round>(),
+            attackers, defenders, history,
             TimeSpan.Zero);
 
         // Assert
@@ -116,7 +125,7 @@ public class CancellationTests
         // But behavior depends on implementation
         if (result.HasSolution)
         {
-            result.Teams.Should().HaveCount(2);
+            MatchmakingAssertions.AssertValidSuccessfulResult(result, attackers, defenders, history);
         }
         // If no solution, it's acceptable
     }
@@ -135,9 +144,7 @@ public class CancellationTests
             TimeSpan.FromSeconds(30));
 
         // Assert
-        result.HasSolution.Should().BeTrue();
-        result.Outcome.Should().Be(RunOutcome.Completed);
-        result.StopReason.Should().Be(StopReason.None);
+        MatchmakingAssertions.AssertValidCompletedResult(result, attackers, defenders, history);
     }
 
     [Fact]
@@ -164,20 +171,26 @@ public class CancellationTests
             result.StopReason.Should().NotBe(StopReason.None);
             result.Teams.Should().BeEmpty();
         }
+        else
+        {
+            MatchmakingAssertions.AssertValidSuccessfulResult(result, attackers, defenders, history);
+        }
     }
 
     [Fact]
     public void GeneratePairs_EmptyInput_CompletesImmediately_EvenWithCancellation()
     {
         // Arrange
+        var attackers = Array.Empty<string>();
+        var defenders = Array.Empty<string>();
+        var history = Array.Empty<Round>();
+
         using var cts = new CancellationTokenSource();
         cts.Cancel();
 
         // Act
         var result = _sut.GeneratePairs(
-            Array.Empty<string>(),
-            Array.Empty<string>(),
-            Array.Empty<Round>(),
+            attackers, defenders, history,
             TimeSpan.FromSeconds(1),
             ct: cts.Token);
 
