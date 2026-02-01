@@ -58,4 +58,21 @@ internal sealed class BipartiteGraph
     /// Gets the total number of edges in the graph.
     /// </summary>
     public int EdgeCount => _adjacency.Sum(adj => adj.Count);
+
+    /// <summary>
+    /// Shuffles adjacency lists so that Hopcroft-Karp explores edges in random order,
+    /// producing different valid matchings for different seeds.
+    /// </summary>
+    public void Shuffle(Random rng)
+    {
+        foreach (var adj in _adjacency)
+        {
+            // Fisher-Yates shuffle
+            for (int i = adj.Count - 1; i > 0; i--)
+            {
+                int j = rng.Next(i + 1);
+                (adj[i], adj[j]) = (adj[j], adj[i]);
+            }
+        }
+    }
 }

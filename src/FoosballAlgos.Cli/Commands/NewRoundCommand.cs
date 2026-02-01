@@ -114,10 +114,11 @@ public static class NewRoundCommand
         var attackers = attackerIndices.Select(i => workingPlayers[i]).ToArray();
         var defenders = defenderIndices.Select(i => workingPlayers[i]).ToArray();
 
-        // Convert history for library
+        // Convert history for library (most recent first, as required by MatchmakingService)
         var history = data.Rounds
             .Select(r => new Round(
                 r.Teams.Select(t => new UnorderedPair(t.Attacker, t.Defender)).ToList()))
+            .Reverse()
             .ToList();
 
         // Generate/Regenerate loop

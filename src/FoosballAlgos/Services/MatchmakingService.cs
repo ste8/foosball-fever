@@ -47,6 +47,9 @@ public sealed class MatchmakingService
                 repeatedPairsTotal: 0);
         }
 
+        // Create RNG for shuffling graph edges (produces different valid matchings for different seeds)
+        var rng = seed.HasValue ? new System.Random(seed.Value) : new System.Random();
+
         // Build index maps for players
         var attackerIndex = BuildIndexMap(attackers);
         var defenderIndex = BuildIndexMap(defenders);
@@ -63,7 +66,7 @@ public sealed class MatchmakingService
         int bestDepth = 0;
 
         // First try depth 0 (no forbidden pairs) to ensure we can find any matching
-        var baseMatching = TryMatchAtDepth(attackers.Count, defenders.Count, 0, forbiddenByRound, ct);
+        var baseMatching = TryMatchAtDepth(attackers.Count, defenders.Count, 0, forbiddenByRound, rng, ct);
         if (ct.IsCancellationRequested)
             return MatchmakingResult.Cancelled();
 
@@ -93,7 +96,7 @@ public sealed class MatchmakingService
 
             int mid = lo + (hi - lo) / 2;
 
-            var matching = TryMatchAtDepth(attackers.Count, defenders.Count, mid, forbiddenByRound, ct);
+            var matching = TryMatchAtDepth(attackers.Count, defenders.Count, mid, forbiddenByRound, rng, ct);
 
             if (ct.IsCancellationRequested)
             {
@@ -132,12 +135,14 @@ public sealed class MatchmakingService
 
     /// <summary>
     /// Attempts to find a perfect matching at the given depth.
+    /// Shuffles graph edges using RNG so different seeds produce different valid matchings.
     /// </summary>
     private Dictionary<int, int>? TryMatchAtDepth(
         int attackerCount,
         int defenderCount,
         int depth,
         List<HashSet<(int Attacker, int Defender)>> forbiddenByRound,
+        System.Random rng,
         CancellationToken ct)
     {
         // Build forbidden set: union of pairs from rounds 0..depth-1
@@ -162,6 +167,9 @@ public sealed class MatchmakingService
                 }
             }
         }
+
+        // Shuffle edge ordering so Hopcroft-Karp explores different paths
+        graph.Shuffle(rng);
 
         return _matcher.FindMaximumMatching(graph, ct);
     }
