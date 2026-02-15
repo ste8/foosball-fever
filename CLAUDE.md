@@ -33,7 +33,7 @@ See `docs/DESIGN.md` for the complete design document covering architecture, dat
 
 ## Implementation Phases
 
-1a. Algorithm + tests (standalone TypeScript port from C#)
+1a. ✅ Algorithm + tests (standalone TypeScript port from C#)
 1b. CLI app (Ink — port from C#)
 2. Tauri + React scaffolding + theming + i18n
 3. Database layer + repositories
@@ -46,9 +46,9 @@ See `docs/DESIGN.md` for the complete design document covering architecture, dat
 
 ## Currently Working On
 
-**Phase 1a: Algorithm + Tests**
+**Phase 1b: CLI App (Ink)**
 
-Port the C# algorithm from `DotNetAlgos/` to TypeScript under `packages/team-generator/`. Port the 117 tests to Vitest first, then implement the algorithm until all tests pass. Follow the algorithm interface defined in `docs/DESIGN.md` (section "Algorithm Interface").
+Port the C# CLI application from `DotNetAlgos/` to TypeScript using Ink (React for the terminal) and Ink UI under `packages/team-generator/cli/`. Same menu-driven flow: manage players, create match days, assign roles, generate teams, view history. Uses the algorithm library from Phase 1a directly.
 
 ## Key Conventions
 
