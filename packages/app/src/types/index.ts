@@ -55,3 +55,7 @@ export interface TeamWithPlayers extends Team {
 export interface MatchDayWithTeams extends MatchDay {
   teams: TeamWithPlayers[];
 }
+
+export interface PlayerWithChampionships extends Player {
+  championships: { id: string; name: string }[];
+}

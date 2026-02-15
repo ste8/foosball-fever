@@ -1,4 +1,4 @@
-import type { Player } from "@foosball-fever/app/types";
+import type { Player, PlayerWithChampionships } from "@foosball-fever/app/types";
 import type {
   PlayerRepository,
   CreatePlayerData,
@@ -121,6 +121,69 @@ export function createPlayerRepository(db: Database): PlayerRepository {
 
     async delete(id) {
       await db.execute("DELETE FROM players WHERE id = :id", { id });
+    },
+
+    async getAllWithChampionships() {
+      const playerRows = await db.query<PlayerRow>(
+        `SELECT id, first_name, last_name, display_name, preferred_role, created_at, updated_at
+         FROM players ORDER BY display_name`,
+      );
+
+      const champRows = await db.query<{
+        player_id: string;
+        championship_id: string;
+        championship_name: string;
+      }>(
+        `SELECT r.player_id, c.id AS championship_id, c.name AS championship_name
+         FROM roster_entries r
+         JOIN championships c ON c.id = r.championship_id
+         WHERE c.deleted_at IS NULL
+         ORDER BY c.created_at DESC`,
+      );
+
+      const champsByPlayer = new Map<
+        string,
+        { id: string; name: string }[]
+      >();
+      for (const row of champRows) {
+        let list = champsByPlayer.get(row.player_id);
+        if (!list) {
+          list = [];
+          champsByPlayer.set(row.player_id, list);
+        }
+        list.push({ id: row.championship_id, name: row.championship_name });
+      }
+
+      return playerRows.map(
+        (row): PlayerWithChampionships => ({
+          ...rowToPlayer(row),
+          championships: champsByPlayer.get(row.id) ?? [],
+        }),
+      );
+    },
+
+    async getNotInChampionship(championshipId) {
+      const rows = await db.query<PlayerRow>(
+        `SELECT p.id, p.first_name, p.last_name, p.display_name, p.preferred_role, p.created_at, p.updated_at
+         FROM players p
+         WHERE p.id NOT IN (
+           SELECT r.player_id FROM roster_entries r WHERE r.championship_id = :championshipId
+         )
+         ORDER BY p.display_name`,
+        { championshipId },
+      );
+      return rows.map(rowToPlayer);
+    },
+
+    async isInAnyActiveRoster(id) {
+      const row = await db.queryOne<{ cnt: number }>(
+        `SELECT COUNT(*) AS cnt
+         FROM roster_entries r
+         JOIN championships c ON c.id = r.championship_id
+         WHERE r.player_id = :id AND c.deleted_at IS NULL AND c.archived_at IS NULL`,
+        { id },
+      );
+      return (row?.cnt ?? 0) > 0;
     },
   };
 }

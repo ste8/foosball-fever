@@ -53,5 +53,41 @@
     "deleteMessage": "Sei sicuro di voler eliminare \"{{name}}\"? Questa azione non può essere annullata.",
     "cancel": "Annulla",
     "save": "Salva"
+  },
+  "players": {
+    "title": "Anagrafica Giocatori",
+    "count": "{{count}} giocatori",
+    "newPlayer": "Nuovo giocatore",
+    "editPlayer": "Modifica giocatore",
+    "deletePlayer": "Elimina giocatore",
+    "deleteConfirmTitle": "Elimina giocatore",
+    "deleteConfirmMessage": "Sei sicuro di voler eliminare {{name}}? Questa azione non può essere annullata.",
+    "cannotDelete": "Impossibile eliminare: il giocatore è nella rosa di un campionato attivo.",
+    "firstName": "Nome",
+    "lastName": "Cognome",
+    "displayName": "Nome visualizzato",
+    "preferredRole": "Ruolo preferito",
+    "inChampionships": "in: {{names}}",
+    "emptyState": "Nessun giocatore",
+    "emptyStateAction": "Crea il tuo primo giocatore o aggiungi giocatori dalla rosa di un campionato"
+  },
+  "roster": {
+    "title": "Rosa",
+    "playerCount": "{{count}} giocatori",
+    "addPlayer": "Aggiungi giocatore",
+    "removePlayer": "Rimuovi dalla rosa",
+    "removeConfirmTitle": "Rimuovi giocatore",
+    "removeConfirmMessage": "Rimuovere {{name}} dalla rosa di questo campionato?",
+    "fromRegistry": "Dall'anagrafica",
+    "createNewPlayer": "Crea nuovo giocatore",
+    "searchPlaceholder": "Cerca giocatori...",
+    "emptyState": "Nessun giocatore in questa rosa",
+    "emptyStateAction": "Aggiungi giocatori per iniziare a generare le giornate",
+    "inheritedPreference": "(ereditato)"
+  },
+  "roles": {
+    "attacker": "Attaccante",
+    "defender": "Difensore",
+    "noPreference": "Nessuna preferenza"
   }
 }

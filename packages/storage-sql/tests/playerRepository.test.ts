@@ -121,4 +121,151 @@ describe("playerRepository", () => {
       ctx.repos.players.update("nonexistent", { displayName: "test" }),
     ).rejects.toThrow("Player not found");
   });
+
+  describe("getAllWithChampionships", () => {
+    it("returns players with empty championships when none assigned", async () => {
+      await ctx.repos.players.create({
+        firstName: "Marco",
+        lastName: "Rossi",
+        displayName: "Marco",
+      });
+
+      const players = await ctx.repos.players.getAllWithChampionships();
+      expect(players).toHaveLength(1);
+      expect(players[0].displayName).toBe("Marco");
+      expect(players[0].championships).toEqual([]);
+    });
+
+    it("returns players with their championship memberships", async () => {
+      const player = await ctx.repos.players.create({
+        firstName: "Marco",
+        lastName: "Rossi",
+        displayName: "Marco",
+      });
+      const champ1 = await ctx.repos.championships.create({
+        name: "Monday 2025/26",
+      });
+      const champ2 = await ctx.repos.championships.create({
+        name: "Monday 24/25",
+      });
+      await ctx.repos.roster.addPlayer(champ1.id, player.id);
+      await ctx.repos.roster.addPlayer(champ2.id, player.id);
+
+      const players = await ctx.repos.players.getAllWithChampionships();
+      expect(players).toHaveLength(1);
+      expect(players[0].championships).toHaveLength(2);
+      expect(players[0].championships.map((c) => c.name)).toContain(
+        "Monday 2025/26",
+      );
+      expect(players[0].championships.map((c) => c.name)).toContain(
+        "Monday 24/25",
+      );
+    });
+
+    it("excludes deleted championships from membership list", async () => {
+      const player = await ctx.repos.players.create({
+        firstName: "Anna",
+        lastName: "B",
+        displayName: "Anna",
+      });
+      const champ = await ctx.repos.championships.create({ name: "Deleted" });
+      await ctx.repos.roster.addPlayer(champ.id, player.id);
+      await ctx.repos.championships.delete(champ.id);
+
+      const players = await ctx.repos.players.getAllWithChampionships();
+      expect(players[0].championships).toHaveLength(0);
+    });
+  });
+
+  describe("getNotInChampionship", () => {
+    it("returns players not already in the championship roster", async () => {
+      const p1 = await ctx.repos.players.create({
+        firstName: "Marco",
+        lastName: "R",
+        displayName: "Marco",
+      });
+      const p2 = await ctx.repos.players.create({
+        firstName: "Anna",
+        lastName: "B",
+        displayName: "Anna",
+      });
+      const champ = await ctx.repos.championships.create({ name: "Test" });
+      await ctx.repos.roster.addPlayer(champ.id, p1.id);
+
+      const available = await ctx.repos.players.getNotInChampionship(champ.id);
+      expect(available).toHaveLength(1);
+      expect(available[0].id).toBe(p2.id);
+    });
+
+    it("returns all players when championship has no roster", async () => {
+      await ctx.repos.players.create({
+        firstName: "A",
+        lastName: "A",
+        displayName: "A",
+      });
+      await ctx.repos.players.create({
+        firstName: "B",
+        lastName: "B",
+        displayName: "B",
+      });
+      const champ = await ctx.repos.championships.create({ name: "Empty" });
+
+      const available = await ctx.repos.players.getNotInChampionship(champ.id);
+      expect(available).toHaveLength(2);
+    });
+  });
+
+  describe("isInAnyActiveRoster", () => {
+    it("returns false for player not in any roster", async () => {
+      const player = await ctx.repos.players.create({
+        firstName: "Marco",
+        lastName: "R",
+        displayName: "Marco",
+      });
+
+      const result = await ctx.repos.players.isInAnyActiveRoster(player.id);
+      expect(result).toBe(false);
+    });
+
+    it("returns true for player in an active championship", async () => {
+      const player = await ctx.repos.players.create({
+        firstName: "Marco",
+        lastName: "R",
+        displayName: "Marco",
+      });
+      const champ = await ctx.repos.championships.create({ name: "Active" });
+      await ctx.repos.roster.addPlayer(champ.id, player.id);
+
+      const result = await ctx.repos.players.isInAnyActiveRoster(player.id);
+      expect(result).toBe(true);
+    });
+
+    it("returns false if only in archived championship", async () => {
+      const player = await ctx.repos.players.create({
+        firstName: "Marco",
+        lastName: "R",
+        displayName: "Marco",
+      });
+      const champ = await ctx.repos.championships.create({ name: "Archived" });
+      await ctx.repos.roster.addPlayer(champ.id, player.id);
+      await ctx.repos.championships.archive(champ.id);
+
+      const result = await ctx.repos.players.isInAnyActiveRoster(player.id);
+      expect(result).toBe(false);
+    });
+
+    it("returns false if only in deleted championship", async () => {
+      const player = await ctx.repos.players.create({
+        firstName: "Marco",
+        lastName: "R",
+        displayName: "Marco",
+      });
+      const champ = await ctx.repos.championships.create({ name: "Deleted" });
+      await ctx.repos.roster.addPlayer(champ.id, player.id);
+      await ctx.repos.championships.delete(champ.id);
+
+      const result = await ctx.repos.players.isInAnyActiveRoster(player.id);
+      expect(result).toBe(false);
+    });
+  });
 });

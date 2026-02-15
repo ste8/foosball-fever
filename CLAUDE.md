@@ -37,7 +37,7 @@ See `docs/DESIGN.md` for the complete design document covering architecture, dat
 1b. ✅ CLI app (Ink — port from C#)
 2. ✅ Tauri + React scaffolding + theming (all 3 themes) + i18n
 3. ✅ Database layer + repositories
-4. Championship list (first vertical slice)
+4. ✅ Championship list (first vertical slice)
 5. Player registry + roster management
 6. Match day setup + generation
 7. Pairings result + accept flow
@@ -45,9 +45,9 @@ See `docs/DESIGN.md` for the complete design document covering architecture, dat
 
 ## Currently Working On
 
-**Phase 4: Championship List (First Vertical Slice)**
+**Phase 5: Player Registry + Roster Management**
 
-Build the home screen and "create championship" flow. See `docs/DESIGN.md` Phase 4 and screen designs for full details.
+Build the global player registry and championship roster screens. See `docs/DESIGN.md` Phase 5 and screen designs for full details.
 
 ## Key Conventions
 

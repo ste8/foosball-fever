@@ -53,5 +53,41 @@
     "deleteMessage": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
     "cancel": "Cancel",
     "save": "Save"
+  },
+  "players": {
+    "title": "Players Registry",
+    "count": "{{count}} players",
+    "newPlayer": "New player",
+    "editPlayer": "Edit player",
+    "deletePlayer": "Delete player",
+    "deleteConfirmTitle": "Delete player",
+    "deleteConfirmMessage": "Are you sure you want to delete {{name}}? This action cannot be undone.",
+    "cannotDelete": "Cannot delete: this player is in an active championship roster.",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "displayName": "Display name",
+    "preferredRole": "Preferred role",
+    "inChampionships": "in: {{names}}",
+    "emptyState": "No players yet",
+    "emptyStateAction": "Create your first player or add players via a championship roster"
+  },
+  "roster": {
+    "title": "Roster",
+    "playerCount": "{{count}} players",
+    "addPlayer": "Add player",
+    "removePlayer": "Remove from roster",
+    "removeConfirmTitle": "Remove player",
+    "removeConfirmMessage": "Remove {{name}} from this championship's roster?",
+    "fromRegistry": "From Registry",
+    "createNewPlayer": "Create new player",
+    "searchPlaceholder": "Search players...",
+    "emptyState": "No players in this roster yet",
+    "emptyStateAction": "Add players to start generating match days",
+    "inheritedPreference": "(inherited)"
+  },
+  "roles": {
+    "attacker": "Attacker",
+    "defender": "Defender",
+    "noPreference": "No preference"
   }
 }

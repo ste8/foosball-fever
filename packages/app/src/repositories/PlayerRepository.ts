@@ -1,4 +1,4 @@
-import type { Player, Role } from "../types";
+import type { Player, PlayerWithChampionships, Role } from "../types";
 
 export interface CreatePlayerData {
   firstName: string;
@@ -20,4 +20,7 @@ export interface PlayerRepository {
   create(data: CreatePlayerData): Promise<Player>;
   update(id: string, data: UpdatePlayerData): Promise<Player>;
   delete(id: string): Promise<void>;
+  getAllWithChampionships(): Promise<PlayerWithChampionships[]>;
+  getNotInChampionship(championshipId: string): Promise<Player[]>;
+  isInAnyActiveRoster(id: string): Promise<boolean>;
 }
