@@ -36,7 +36,7 @@ See `docs/DESIGN.md` for the complete design document covering architecture, dat
 1a. ✅ Algorithm + tests (standalone TypeScript port from C#)
 1b. ✅ CLI app (Ink — port from C#)
 2. ✅ Tauri + React scaffolding + theming (all 3 themes) + i18n
-3. Database layer + repositories
+3. ✅ Database layer + repositories
 4. Championship list (first vertical slice)
 5. Player registry + roster management
 6. Match day setup + generation
@@ -45,9 +45,9 @@ See `docs/DESIGN.md` for the complete design document covering architecture, dat
 
 ## Currently Working On
 
-**Phase 3: Database Layer**
+**Phase 4: Championship List (First Vertical Slice)**
 
-Set up `packages/storage-sql/`. See `docs/DESIGN.md` Phase 3 for full details.
+Build the home screen and "create championship" flow. See `docs/DESIGN.md` Phase 4 and screen designs for full details.
 
 ## Key Conventions
 

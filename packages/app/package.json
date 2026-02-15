@@ -8,7 +8,7 @@
     ".": "./src/App.tsx",
     "./index.css": "./src/index.css",
     "./types": "./src/types/index.ts",
-    "./repositories/interfaces": "./src/repositories/interfaces.ts"
+    "./repositories": "./src/repositories/index.ts"
   },
   "dependencies": {
     "@foosball-fever/team-generator": "*",

@@ -3,7 +3,7 @@ import type {
   PlayerRepository,
   CreatePlayerData,
   UpdatePlayerData,
-} from "@foosball-fever/app/repositories/interfaces";
+} from "@foosball-fever/app/repositories";
 import type { Database } from "../database.ts";
 
 interface PlayerRow {

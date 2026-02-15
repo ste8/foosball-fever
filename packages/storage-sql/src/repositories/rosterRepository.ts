@@ -1,5 +1,5 @@
 import type { RosterEntry, RosterEntryWithPlayer, Role } from "@foosball-fever/app/types";
-import type { RosterRepository } from "@foosball-fever/app/repositories/interfaces";
+import type { RosterRepository } from "@foosball-fever/app/repositories";
 import type { Database } from "../database.ts";
 
 interface RosterEntryWithPlayerRow {

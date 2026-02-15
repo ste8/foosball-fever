@@ -1,5 +1,15 @@
 import { createContext, useContext, type ReactNode } from "react";
-import type { Repositories } from "./interfaces";
+import type { PlayerRepository } from "./PlayerRepository";
+import type { ChampionshipRepository } from "./ChampionshipRepository";
+import type { RosterRepository } from "./RosterRepository";
+import type { MatchDayRepository } from "./MatchDayRepository";
+
+export interface Repositories {
+  players: PlayerRepository;
+  championships: ChampionshipRepository;
+  roster: RosterRepository;
+  matchDays: MatchDayRepository;
+}
 
 const RepositoryContext = createContext<Repositories | null>(null);
 

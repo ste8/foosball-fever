@@ -7,7 +7,7 @@ import type {
 import type {
   MatchDayRepository,
   CreateMatchDayTeam,
-} from "@foosball-fever/app/repositories/interfaces";
+} from "@foosball-fever/app/repositories";
 import type { MatchDayHistory } from "@foosball-fever/team-generator";
 import type { Database } from "../database.ts";
 

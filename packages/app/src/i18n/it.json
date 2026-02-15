@@ -23,5 +23,35 @@
     "themeSensibleSoccer": "Sensible Soccer",
     "langEnglish": "English",
     "langItalian": "Italiano"
+  },
+  "home": {
+    "yourChampionships": "I tuoi campionati",
+    "newChampionship": "Nuovo campionato",
+    "archived": "Archiviati",
+    "playersRegistry": "Anagrafica giocatori",
+    "emptyState": "Nessun campionato",
+    "emptyStateAction": "Crea il tuo primo campionato per iniziare"
+  },
+  "championship": {
+    "stats": "{{players}} giocatori · {{matchDays}} giornate",
+    "lastPlayed": "Ultima partita {{date}}",
+    "newMatchDay": "Nuova Giornata",
+    "recentMatchDays": "Giornate recenti",
+    "viewAllMatchDays": "Vedi tutte le giornate",
+    "manageRoster": "Gestisci rosa",
+    "matchDayItem": "Giornata {{number}}",
+    "matchDayTeams": "{{count}} squadre",
+    "noMatchDaysYet": "Nessuna giornata",
+    "rename": "Rinomina",
+    "archive": "Archivia",
+    "unarchive": "Ripristina",
+    "delete": "Elimina",
+    "renameTitle": "Rinomina campionato",
+    "renamePlaceholder": "Nome campionato",
+    "createTitle": "Nuovo campionato",
+    "deleteTitle": "Elimina campionato",
+    "deleteMessage": "Sei sicuro di voler eliminare \"{{name}}\"? Questa azione non può essere annullata.",
+    "cancel": "Annulla",
+    "save": "Salva"
   }
 }

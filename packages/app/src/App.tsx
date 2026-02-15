@@ -2,7 +2,7 @@ import "./i18n/i18n";
 import { ThemeProvider } from "./theme/ThemeProvider";
 import { RepositoryProvider } from "./repositories/RepositoryContext";
 import { Router } from "./Router";
-import type { Repositories } from "./repositories/interfaces";
+import type { Repositories } from "./repositories";
 
 export function App({ repositories }: { repositories?: Repositories }) {
   return (

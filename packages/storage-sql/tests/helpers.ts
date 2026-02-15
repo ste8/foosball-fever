@@ -3,7 +3,7 @@ import { runMigrations } from "../src/migrationRunner.ts";
 import { sqliteMigrations } from "../src/migrations/sqlite/index.ts";
 import { createRepositories } from "../src/repositories/index.ts";
 import type { Database } from "../src/database.ts";
-import type { Repositories } from "@foosball-fever/app/repositories/interfaces";
+import type { Repositories } from "@foosball-fever/app/repositories";
 
 export interface TestContext {
   db: Database;

@@ -4,7 +4,7 @@ import { App } from "@foosball-fever/app";
 import { createTauriSqliteDatabase } from "@foosball-fever/storage-sql/dialects/tauri-sqlite";
 import { runMigrations, createRepositories } from "@foosball-fever/storage-sql";
 import { sqliteMigrations } from "@foosball-fever/storage-sql/migrations/sqlite/bundle";
-import type { Repositories } from "@foosball-fever/app/repositories/interfaces";
+import type { Repositories } from "@foosball-fever/app/repositories";
 import "@foosball-fever/app/index.css";
 
 function Root() {

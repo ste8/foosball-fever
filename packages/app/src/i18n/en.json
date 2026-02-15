@@ -23,5 +23,35 @@
     "themeSensibleSoccer": "Sensible Soccer",
     "langEnglish": "English",
     "langItalian": "Italiano"
+  },
+  "home": {
+    "yourChampionships": "Your Championships",
+    "newChampionship": "New championship",
+    "archived": "Archived",
+    "playersRegistry": "Players registry",
+    "emptyState": "No championships yet",
+    "emptyStateAction": "Create your first championship to get started"
+  },
+  "championship": {
+    "stats": "{{players}} players · {{matchDays}} match days",
+    "lastPlayed": "Last played {{date}}",
+    "newMatchDay": "New Match Day",
+    "recentMatchDays": "Recent Match Days",
+    "viewAllMatchDays": "View all match days",
+    "manageRoster": "Manage roster",
+    "matchDayItem": "Match Day {{number}}",
+    "matchDayTeams": "{{count}} teams",
+    "noMatchDaysYet": "No match days yet",
+    "rename": "Rename",
+    "archive": "Archive",
+    "unarchive": "Unarchive",
+    "delete": "Delete",
+    "renameTitle": "Rename championship",
+    "renamePlaceholder": "Championship name",
+    "createTitle": "New championship",
+    "deleteTitle": "Delete championship",
+    "deleteMessage": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
+    "cancel": "Cancel",
+    "save": "Save"
   }
 }

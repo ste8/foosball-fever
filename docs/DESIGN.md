@@ -1181,7 +1181,11 @@ foosball-fever/
         theme/
         types/                        ← domain types: Player, Championship, MatchDay, Team
         repositories/
-          interfaces.ts               ← abstract repository interfaces only
+          PlayerRepository.ts         ← interface only
+          ChampionshipRepository.ts
+          RosterRepository.ts
+          MatchDayRepository.ts
+          index.ts                    ← re-exports all interfaces + Repositories type
     storage-sql/                        ← database layer (raw SQL, no ORM)
       src/
         database.ts                   ← Database interface + dialect abstraction
@@ -1276,7 +1280,7 @@ Why second: get the tooling pain out of the way before real code complicates deb
 
 ### Phase 3: Database Layer
 
-Set up `packages/storage-sql/`. Custom migration runner, initial schema migration (SQLite dialect), Database interface with SQLite dialect implementation, repository implementations using raw SQL. Define repository interfaces in `packages/app/src/repositories/interfaces.ts`. Integration tests against in-memory SQLite: create a player, create a championship, add roster entries, save a match day with teams, read them back. Wire `tauri-shell` to use `storage-sql` with SQLite dialect.
+Set up `packages/storage-sql/`. Custom migration runner, initial schema migration (SQLite dialect), Database interface with SQLite dialect implementation, repository implementations using raw SQL. Define repository interfaces in `packages/app/src/repositories/` (one file per repository). Integration tests against in-memory SQLite: create a player, create a championship, add roster entries, save a match day with teams, read them back. Wire `tauri-shell` to use `storage-sql` with SQLite dialect.
 
 Why third: real persistence in place means everything built after this saves and loads real data.
 
