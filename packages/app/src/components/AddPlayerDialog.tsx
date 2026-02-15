@@ -29,6 +29,7 @@ export function AddPlayerDialog({
   const [search, setSearch] = useState("");
   const [highlightIndex, setHighlightIndex] = useState(0);
   const [isPending, startTransition] = useTransition();
+  const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -57,6 +58,14 @@ export function AddPlayerDialog({
   function handleAdd(playerId: string) {
     startTransition(async () => {
       await onAddPlayer(playerId);
+      // Re-focus and select search text for quick next search
+      requestAnimationFrame(() => {
+        const input = inputRef.current;
+        if (input) {
+          input.focus();
+          input.select();
+        }
+      });
     });
   }
 
@@ -96,12 +105,17 @@ export function AddPlayerDialog({
               {t("roster.fromRegistry")}
             </h3>
             <Input
+              ref={inputRef}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={t("roster.searchPlaceholder")}
               disabled={isPending}
               autoFocus
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="off"
+              spellCheck={false}
             />
           </div>
           <div ref={listRef} className="max-h-60 overflow-y-auto space-y-1">
