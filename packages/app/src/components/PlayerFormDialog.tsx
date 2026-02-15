@@ -66,7 +66,14 @@ export function PlayerFormDialog({
   function handleFirstNameChange(value: string) {
     setFirstName(value);
     if (!displayNameTouched) {
-      setDisplayName(value);
+      setDisplayName([value, lastName].filter(Boolean).join(" "));
+    }
+  }
+
+  function handleLastNameChange(value: string) {
+    setLastName(value);
+    if (!displayNameTouched) {
+      setDisplayName([firstName, value].filter(Boolean).join(" "));
     }
   }
 
@@ -121,7 +128,7 @@ export function PlayerFormDialog({
               <Label>{t("players.lastName")}</Label>
               <Input
                 value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
+                onChange={(e) => handleLastNameChange(e.target.value)}
                 disabled={isPending}
               />
             </div>

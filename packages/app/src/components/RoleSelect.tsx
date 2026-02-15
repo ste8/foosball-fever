@@ -6,6 +6,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { RoleIcon } from "@/components/RoleIcon";
 import type { Role } from "@/types";
 
 const NONE_VALUE = "__none__";
@@ -32,8 +33,18 @@ export function RoleSelect({
       </SelectTrigger>
       <SelectContent>
         <SelectItem value={NONE_VALUE}>{t("roles.noPreference")}</SelectItem>
-        <SelectItem value="attacker">{t("roles.attacker")}</SelectItem>
-        <SelectItem value="defender">{t("roles.defender")}</SelectItem>
+        <SelectItem value="defender">
+          <span className="flex items-center gap-2">
+            <RoleIcon role="defender" />
+            {t("roles.defender")}
+          </span>
+        </SelectItem>
+        <SelectItem value="attacker">
+          <span className="flex items-center gap-2">
+            <RoleIcon role="attacker" />
+            {t("roles.attacker")}
+          </span>
+        </SelectItem>
       </SelectContent>
     </Select>
   );

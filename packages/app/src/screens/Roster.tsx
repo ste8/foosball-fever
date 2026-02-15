@@ -137,12 +137,12 @@ export function Roster() {
         </p>
         <div className="flex items-center gap-3 text-xs text-muted-foreground">
           <span className="flex items-center gap-1">
-            <RoleIcon role="attacker" />
-            {t("roles.attacker")}
-          </span>
-          <span className="flex items-center gap-1">
             <RoleIcon role="defender" />
             {t("roles.defender")}
+          </span>
+          <span className="flex items-center gap-1">
+            <RoleIcon role="attacker" />
+            {t("roles.attacker")}
           </span>
         </div>
       </div>

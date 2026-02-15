@@ -1,4 +1,4 @@
-import { useState, useEffect, useTransition } from "react";
+import { useState, useEffect, useRef, useTransition } from "react";
 import { useTranslation } from "react-i18next";
 import { Plus } from "lucide-react";
 import {
@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import type { Player } from "@/types";
 
 export function AddPlayerDialog({
@@ -26,10 +27,15 @@ export function AddPlayerDialog({
 }) {
   const { t } = useTranslation();
   const [search, setSearch] = useState("");
+  const [highlightIndex, setHighlightIndex] = useState(0);
   const [isPending, startTransition] = useTransition();
+  const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (open) setSearch("");
+    if (open) {
+      setSearch("");
+      setHighlightIndex(0);
+    }
   }, [open]);
 
   const filtered = search.trim()
@@ -43,11 +49,40 @@ export function AddPlayerDialog({
       })
     : availablePlayers;
 
+  // Reset highlight when filter changes
+  useEffect(() => {
+    setHighlightIndex(0);
+  }, [search]);
+
   function handleAdd(playerId: string) {
     startTransition(async () => {
       await onAddPlayer(playerId);
     });
   }
+
+  function handleKeyDown(e: React.KeyboardEvent) {
+    if (filtered.length === 0) return;
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setHighlightIndex((i) => Math.min(i + 1, filtered.length - 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setHighlightIndex((i) => Math.max(i - 1, 0));
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      const player = filtered[highlightIndex];
+      if (player) handleAdd(player.id);
+    }
+  }
+
+  // Scroll highlighted item into view
+  useEffect(() => {
+    const container = listRef.current;
+    if (!container) return;
+    const item = container.children[highlightIndex] as HTMLElement | undefined;
+    item?.scrollIntoView({ block: "nearest" });
+  }, [highlightIndex]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -63,11 +98,13 @@ export function AddPlayerDialog({
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={handleKeyDown}
               placeholder={t("roster.searchPlaceholder")}
               disabled={isPending}
+              autoFocus
             />
           </div>
-          <div className="max-h-60 overflow-y-auto space-y-1">
+          <div ref={listRef} className="max-h-60 overflow-y-auto space-y-1">
             {filtered.length === 0 ? (
               <p className="text-sm text-muted-foreground py-2 text-center">
                 {availablePlayers.length === 0
@@ -75,12 +112,16 @@ export function AddPlayerDialog({
                   : t("roster.searchPlaceholder")}
               </p>
             ) : (
-              filtered.map((p) => (
+              filtered.map((p, i) => (
                 <button
                   key={p.id}
                   type="button"
-                  className="flex w-full items-center rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent disabled:opacity-50"
+                  className={cn(
+                    "flex w-full items-center rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent disabled:opacity-50",
+                    i === highlightIndex && "bg-accent",
+                  )}
                   onClick={() => handleAdd(p.id)}
+                  onMouseEnter={() => setHighlightIndex(i)}
                   disabled={isPending}
                 >
                   {p.displayName}
