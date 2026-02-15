@@ -35,7 +35,7 @@ See `docs/DESIGN.md` for the complete design document covering architecture, dat
 
 1a. ✅ Algorithm + tests (standalone TypeScript port from C#)
 1b. ✅ CLI app (Ink — port from C#)
-2. Tauri + React scaffolding + theming (all 3 themes) + i18n
+2. ✅ Tauri + React scaffolding + theming (all 3 themes) + i18n
 3. Database layer + repositories
 4. Championship list (first vertical slice)
 5. Player registry + roster management
@@ -45,9 +45,9 @@ See `docs/DESIGN.md` for the complete design document covering architecture, dat
 
 ## Currently Working On
 
-**Phase 2: Tauri + React Scaffolding**
+**Phase 3: Database Layer**
 
-Set up `packages/app/` (shared React app) and `packages/tauri-shell/` (Tauri wiring). See `docs/DESIGN.md` Phase 2 for full details.
+Set up `packages/storage-sql/`. See `docs/DESIGN.md` Phase 3 for full details.
 
 ## Key Conventions
 

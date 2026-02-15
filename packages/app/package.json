@@ -6,9 +6,12 @@
   "main": "./src/App.tsx",
   "exports": {
     ".": "./src/App.tsx",
-    "./index.css": "./src/index.css"
+    "./index.css": "./src/index.css",
+    "./types": "./src/types/index.ts",
+    "./repositories/interfaces": "./src/repositories/interfaces.ts"
   },
   "dependencies": {
+    "@foosball-fever/team-generator": "*",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "i18next": "^25.0.0",

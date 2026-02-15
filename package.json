@@ -4,6 +4,7 @@
   "workspaces": [
     "packages/team-generator",
     "packages/app",
+    "packages/storage-sql",
     "packages/tauri-shell"
   ]
 }
