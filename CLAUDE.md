@@ -34,21 +34,20 @@ See `docs/DESIGN.md` for the complete design document covering architecture, dat
 ## Implementation Phases
 
 1a. ✅ Algorithm + tests (standalone TypeScript port from C#)
-1b. CLI app (Ink — port from C#)
-2. Tauri + React scaffolding + theming + i18n
+1b. ✅ CLI app (Ink — port from C#)
+2. Tauri + React scaffolding + theming (all 3 themes) + i18n
 3. Database layer + repositories
 4. Championship list (first vertical slice)
 5. Player registry + roster management
 6. Match day setup + generation
 7. Pairings result + accept flow
 8. History, detail screens, archive/delete
-9. Sensible Soccer theme
 
 ## Currently Working On
 
-**Phase 1b: CLI App (Ink)**
+**Phase 2: Tauri + React Scaffolding**
 
-Port the C# CLI application from `DotNetAlgos/` to TypeScript using Ink (React for the terminal) and Ink UI under `packages/team-generator/cli/`. Same menu-driven flow: manage players, create match days, assign roles, generate teams, view history. Uses the algorithm library from Phase 1a directly.
+Set up `packages/app/` (shared React app) and `packages/tauri-shell/` (Tauri wiring). See `docs/DESIGN.md` Phase 2 for full details.
 
 ## Key Conventions
 

@@ -1,0 +1,27 @@
+{
+  "app": {
+    "name": "Foosball Fever"
+  },
+  "screen": {
+    "home": "Championships",
+    "championshipDetail": "Championship",
+    "roster": "Roster",
+    "matchDayHistory": "Match Days",
+    "matchDaySetup": "New Match Day",
+    "matchDayResult": "Match Day Result",
+    "playerRegistry": "Player Registry"
+  },
+  "nav": {
+    "back": "Back",
+    "settings": "Settings"
+  },
+  "settings": {
+    "theme": "Theme",
+    "language": "Language",
+    "themeClassic": "Classic",
+    "themeClassicDark": "Classic Dark",
+    "themeSensibleSoccer": "Sensible Soccer",
+    "langEnglish": "English",
+    "langItalian": "Italiano"
+  }
+}

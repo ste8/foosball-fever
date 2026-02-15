@@ -978,7 +978,7 @@ document.documentElement.className = 'theme-sensible-soccer'
 
 A `ThemeProvider` React component wraps the entire app. It reads the current theme from state, applies the CSS class, and exposes `setTheme()` via React context. The user's choice is persisted to the database.
 
-### Phase 1 Themes (Initial Implementation)
+### Initial Themes (Implemented in Phase 2)
 
 These three themes validate different aspects of the theming system:
 
@@ -1017,7 +1017,7 @@ Iconic top-down pixel art football. Proves deep theming (fonts, shapes, personal
 - Thick blocky borders
 - UI feels like a 16-bit game menu
 
-### Phase 2 Theme Roadmap
+### Future Theme Roadmap
 
 Additional themes to implement later, each with a distinct visual identity:
 
@@ -1145,14 +1145,13 @@ Each phase produces something testable and working. Each layer is verified befor
 ```
 Phase 1a  ████  Algorithm + tests (standalone)
 Phase 1b  ██    CLI app (Ink — port from C#)
-Phase 2   ███   Tauri/React scaffolding + theming shell
+Phase 2   ████  Tauri/React scaffolding + theming (all 3 themes) + i18n
 Phase 3   ███   Database layer + repositories
 Phase 4   ██    Championship list (first vertical slice)
 Phase 5   ███   Player registry + roster management
 Phase 6   █████ Match day setup + generation (the big one)
 Phase 7   ███   Pairings result + accept flow
 Phase 8   ███   History, detail screens, archive/delete
-Phase 9   ██    Sensible Soccer theme
 ```
 
 ### Project Structure
@@ -1269,7 +1268,9 @@ This gives a working interactive tool immediately, before the full Tauri app is 
 
 ### Phase 2: Tauri + React Scaffolding
 
-Set up `packages/app/` (shared React app) and `packages/tauri-shell/` (Tauri wiring). Install Tauri v2, Vite, React, React Router, shadcn/ui, Tailwind CSS, react-i18next. Placeholder routes, ThemeProvider with Classic and Classic Dark themes working, i18n provider with English and Italian translation files, global 👤 icon with theme and language selectors. Verify the build pipeline works and the app launches.
+Set up `packages/app/` (shared React app) and `packages/tauri-shell/` (Tauri wiring). Install Tauri v2, Vite, React, React Router, shadcn/ui, Tailwind CSS, react-i18next. Placeholder routes, ThemeProvider with all three Phase 1 themes working (Classic, Classic Dark, Sensible Soccer), i18n provider with English and Italian translation files, global 👤 icon with theme and language selectors. Verify the build pipeline works and the app launches.
+
+Including all three themes now validates the full theming architecture while the app is simple — Classic + Dark prove color swapping, Sensible Soccer proves deep theming (custom fonts, square corners, different personality). Easier to fix architectural gaps now than after 8 screens are built.
 
 Why second: get the tooling pain out of the way before real code complicates debugging.
 
@@ -1298,10 +1299,6 @@ Result screen, metrics display, regenerate flow, accept and save to database. Af
 ### Phase 8: History and Polish
 
 Championship detail screen (with recent match days), match day history, read-only match day view, delete last match day, archive/delete championship. Simpler screens that mostly read and display data.
-
-### Phase 9: Sensible Soccer Theme
-
-Add the third theme. Validates that the theming architecture handles deep customization (pixel fonts, square corners, different visual personality).
 
 ---
 

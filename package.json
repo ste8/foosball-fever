@@ -1,0 +1,9 @@
+{
+  "name": "foosball-fever",
+  "private": true,
+  "workspaces": [
+    "packages/team-generator",
+    "packages/app",
+    "packages/tauri-shell"
+  ]
+}

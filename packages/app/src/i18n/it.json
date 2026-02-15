@@ -1,0 +1,27 @@
+{
+  "app": {
+    "name": "Biliardino Fever"
+  },
+  "screen": {
+    "home": "Campionati",
+    "championshipDetail": "Campionato",
+    "roster": "Rosa",
+    "matchDayHistory": "Giornate",
+    "matchDaySetup": "Nuova Giornata",
+    "matchDayResult": "Risultato Giornata",
+    "playerRegistry": "Anagrafica Giocatori"
+  },
+  "nav": {
+    "back": "Indietro",
+    "settings": "Impostazioni"
+  },
+  "settings": {
+    "theme": "Tema",
+    "language": "Lingua",
+    "themeClassic": "Classico",
+    "themeClassicDark": "Classico Scuro",
+    "themeSensibleSoccer": "Sensible Soccer",
+    "langEnglish": "English",
+    "langItalian": "Italiano"
+  }
+}

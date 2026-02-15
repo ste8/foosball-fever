@@ -1,0 +1,37 @@
+.theme-sensible-soccer {
+  --font-sans: "Press Start 2P", monospace;
+  --radius: 0;
+
+  --background: oklch(0.36 0.1 145);
+  --foreground: oklch(0.98 0.01 110);
+  --card: oklch(0.30 0.08 145);
+  --card-foreground: oklch(0.98 0.01 110);
+  --popover: oklch(0.30 0.08 145);
+  --popover-foreground: oklch(0.98 0.01 110);
+  --primary: oklch(0.63 0.25 29);
+  --primary-foreground: oklch(0.98 0.01 110);
+  --secondary: oklch(0.55 0.2 260);
+  --secondary-foreground: oklch(0.98 0.01 110);
+  --muted: oklch(0.32 0.07 145);
+  --muted-foreground: oklch(0.75 0.05 145);
+  --accent: oklch(0.82 0.19 90);
+  --accent-foreground: oklch(0.20 0.05 145);
+  --destructive: oklch(0.63 0.25 29);
+  --destructive-foreground: oklch(0.98 0.01 110);
+  --border: oklch(0.45 0.08 145);
+  --input: oklch(0.45 0.08 145);
+  --ring: oklch(0.82 0.19 90);
+
+  --sidebar-background: oklch(0.30 0.08 145);
+  --sidebar-foreground: oklch(0.98 0.01 110);
+  --sidebar-primary: oklch(0.63 0.25 29);
+  --sidebar-primary-foreground: oklch(0.98 0.01 110);
+  --sidebar-accent: oklch(0.32 0.07 145);
+  --sidebar-accent-foreground: oklch(0.98 0.01 110);
+  --sidebar-border: oklch(0.45 0.08 145);
+  --sidebar-ring: oklch(0.82 0.19 90);
+}
+
+.theme-sensible-soccer * {
+  border-radius: 0 !important;
+}

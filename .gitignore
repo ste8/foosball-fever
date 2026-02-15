@@ -422,3 +422,13 @@ FodyWeavers.xsd
 .idea/.idea.FoosballAlgos/.idea
 settings.local.json
 tournament.json
+
+# Rust / Tauri
+target/
+dist/
+
+# TypeScript
+*.tsbuildinfo
+
+# Vite
+*.local
