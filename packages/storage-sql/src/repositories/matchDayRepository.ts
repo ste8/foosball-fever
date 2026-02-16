@@ -17,6 +17,7 @@ interface MatchDayRow {
   match_day_number: number;
   played_at: string;
   created_at: string;
+  team_count?: number;
 }
 
 interface TeamWithPlayersRow {
@@ -54,6 +55,7 @@ function rowToMatchDay(row: MatchDayRow): MatchDay {
     matchDayNumber: row.match_day_number,
     playedAt: row.played_at,
     createdAt: row.created_at,
+    ...(row.team_count != null ? { teamCount: row.team_count } : {}),
   };
 }
 
@@ -89,10 +91,11 @@ export function createMatchDayRepository(db: Database): MatchDayRepository {
   return {
     async getByChampionshipId(championshipId) {
       const rows = await db.query<MatchDayRow>(
-        `SELECT id, championship_id, match_day_number, played_at, created_at
-         FROM match_days
-         WHERE championship_id = :championshipId
-         ORDER BY match_day_number DESC`,
+        `SELECT md.id, md.championship_id, md.match_day_number, md.played_at, md.created_at,
+                (SELECT COUNT(*) FROM teams t WHERE t.match_day_id = md.id) AS team_count
+         FROM match_days md
+         WHERE md.championship_id = :championshipId
+         ORDER BY md.match_day_number DESC`,
         { championshipId },
       );
       return rows.map(rowToMatchDay);

@@ -6,7 +6,7 @@ import {
   useNavigate,
   useOutletContext,
 } from "react-router-dom";
-import { RefreshCw, Check, Loader2 } from "lucide-react";
+import { RefreshCw, Check, Loader2, MoreVertical } from "lucide-react";
 import { generateTeams } from "@foosball-fever/team-generator";
 import type {
   GenerationResult,
@@ -23,6 +23,12 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { GeneratingDialog } from "@/components/GeneratingDialog";
 import { RoleIcon } from "@/components/RoleIcon";
 import { useRepositories } from "@/repositories/RepositoryContext";
@@ -327,18 +333,30 @@ function ReadOnlyMode({
   const { matchDays: matchDayRepo } = useRepositories();
 
   const [matchDay, setMatchDay] = useState<MatchDayWithTeams | null>(null);
+  const [isLast, setIsLast] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    matchDayRepo.getById(matchDayId).then((md) => {
+    Promise.all([
+      matchDayRepo.getById(matchDayId),
+      matchDayRepo.getByChampionshipId(championshipId),
+    ]).then(([md, allDays]) => {
       if (!md) {
         navigate(`/championships/${championshipId}`, { replace: true });
         return;
       }
       setMatchDay(md);
+      // allDays is ordered by matchDayNumber DESC — first is the latest
+      setIsLast(allDays.length > 0 && allDays[0].id === matchDayId);
       setLoading(false);
     });
   }, [matchDayId, matchDayRepo, championshipId, navigate]);
+
+  async function handleDelete() {
+    await matchDayRepo.deleteLast(championshipId);
+    navigate(`/championships/${championshipId}`, { replace: true });
+  }
 
   if (loading || !matchDay) {
     return <div className="p-6 text-muted-foreground">Loading...</div>;
@@ -347,13 +365,32 @@ function ReadOnlyMode({
   return (
     <div className="p-6 space-y-4">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold">
-          {t("matchDay.resultTitle", { number: matchDay.matchDayNumber })}
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          {formatDate(matchDay.playedAt)}
-        </p>
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <h1 className="text-2xl font-bold">
+            {t("matchDay.resultTitle", { number: matchDay.matchDayNumber })}
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            {formatDate(matchDay.playedAt)}
+          </p>
+        </div>
+        {isLast && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                className="text-destructive"
+                onClick={() => setDeleteOpen(true)}
+              >
+                {t("matchDay.deleteConfirm")}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
 
       {/* Team table */}
@@ -377,6 +414,24 @@ function ReadOnlyMode({
           </div>
         ))}
       </div>
+
+      {/* Delete confirmation */}
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("matchDay.deleteTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("matchDay.deleteMessage")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("championship.cancel")}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete}>
+              {t("matchDay.deleteConfirm")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

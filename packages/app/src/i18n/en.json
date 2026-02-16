@@ -115,7 +115,13 @@
     "freshMatchDays": "{{count}} match days fresh",
     "repeatedCount": "{{repeated}}/{{total}} repeated",
     "noPlayersInRoster": "No players in roster",
-    "addPlayersFirst": "Add players to the roster before creating a match day"
+    "addPlayersFirst": "Add players to the roster before creating a match day",
+    "historyTitle": "Match Day History",
+    "historyTeams": "{{count}} teams",
+    "historyEmpty": "No match days yet",
+    "deleteTitle": "Delete match day",
+    "deleteMessage": "Delete this match day? This cannot be undone.",
+    "deleteConfirm": "Delete"
   },
   "roles": {
     "attacker": "Attacker",

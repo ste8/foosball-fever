@@ -115,7 +115,13 @@
     "freshMatchDays": "{{count}} giornate senza ripetizioni",
     "repeatedCount": "{{repeated}}/{{total}} ripetute",
     "noPlayersInRoster": "Nessun giocatore in rosa",
-    "addPlayersFirst": "Aggiungi giocatori alla rosa prima di creare una giornata"
+    "addPlayersFirst": "Aggiungi giocatori alla rosa prima di creare una giornata",
+    "historyTitle": "Storico Giornate",
+    "historyTeams": "{{count}} squadre",
+    "historyEmpty": "Nessuna giornata",
+    "deleteTitle": "Elimina giornata",
+    "deleteMessage": "Eliminare questa giornata? L'azione non può essere annullata.",
+    "deleteConfirm": "Elimina"
   },
   "roles": {
     "attacker": "Attaccante",

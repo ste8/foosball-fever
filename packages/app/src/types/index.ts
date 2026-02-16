@@ -37,6 +37,7 @@ export interface MatchDay {
   matchDayNumber: number;
   playedAt: string;
   createdAt: string;
+  teamCount?: number;
 }
 
 export interface Team {

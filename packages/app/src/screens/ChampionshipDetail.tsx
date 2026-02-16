@@ -151,36 +151,35 @@ export function ChampionshipDetail() {
         {t("championship.newMatchDay")}
       </Button>
 
-      <hr className="border-border" />
+      {recentMatchDays.length > 0 && (
+        <>
+          <hr className="border-border" />
 
-      <div className="space-y-3">
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          {t("championship.recentMatchDays")}
-        </h2>
-        {recentMatchDays.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            {t("championship.noMatchDaysYet")}
-          </p>
-        ) : (
-          <>
+          <div className="space-y-3">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              {t("championship.recentMatchDays")}
+            </h2>
             {recentMatchDays.map((md) => (
               <button
                 key={md.id}
                 type="button"
                 className="flex w-full items-center justify-between rounded-lg border bg-card p-3 text-left transition-colors hover:bg-accent/50"
                 onClick={() =>
-                  navigate(
-                    `/championships/${id}/match-days/${md.id}`,
-                  )
+                  navigate(`/championships/${id}/match-days/${md.id}`)
                 }
               >
-                <span className="font-medium">
-                  {t("championship.matchDayItem", {
-                    number: md.matchDayNumber,
-                  })}
-                </span>
+                <div>
+                  <span className="font-medium">
+                    {t("championship.matchDayItem", {
+                      number: md.matchDayNumber,
+                    })}
+                  </span>
+                  <span className="text-sm text-muted-foreground ml-2">
+                    — {formatDate(md.playedAt)}
+                  </span>
+                </div>
                 <span className="text-sm text-muted-foreground">
-                  {formatDate(md.playedAt)}
+                  {t("championship.matchDayTeams", { count: md.teamCount ?? 0 })}
                 </span>
               </button>
             ))}
@@ -191,9 +190,9 @@ export function ChampionshipDetail() {
             >
               {t("championship.viewAllMatchDays")}
             </Button>
-          </>
-        )}
-      </div>
+          </div>
+        </>
+      )}
 
       <hr className="border-border" />
 
