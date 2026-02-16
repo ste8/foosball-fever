@@ -96,10 +96,7 @@ export function PlayerFormDialog({
 
   function handleDelete() {
     if (!onDelete) return;
-    startTransition(async () => {
-      await onDelete();
-      onOpenChange(false);
-    });
+    onDelete();
   }
 
   const isValid =
