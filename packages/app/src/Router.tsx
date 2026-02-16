@@ -25,6 +25,10 @@ export function Router() {
             element={<MatchDaySetup />}
           />
           <Route
+            path="/championships/:id/match-days/preview"
+            element={<MatchDayResult />}
+          />
+          <Route
             path="/championships/:id/match-days/:matchDayId"
             element={<MatchDayResult />}
           />

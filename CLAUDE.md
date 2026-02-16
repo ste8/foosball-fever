@@ -38,16 +38,16 @@ See `docs/DESIGN.md` for the complete design document covering architecture, dat
 2. ✅ Tauri + React scaffolding + theming (all 3 themes) + i18n
 3. ✅ Database layer + repositories
 4. ✅ Championship list (first vertical slice)
-5. Player registry + roster management
+5. ✅ Player registry + roster management
 6. Match day setup + generation
 7. Pairings result + accept flow
 8. History, detail screens, archive/delete
 
 ## Currently Working On
 
-**Phase 5: Player Registry + Roster Management**
+**Phase 6: Match Day Setup + Generation**
 
-Build the global player registry and championship roster screens. See `docs/DESIGN.md` Phase 5 and screen designs for full details.
+The most important and complex screen. See `docs/DESIGN.md` Phase 6, screen designs (4. Match Day Setup), algorithm interface, and Web Worker execution model for full details.
 
 ## Key Conventions
 

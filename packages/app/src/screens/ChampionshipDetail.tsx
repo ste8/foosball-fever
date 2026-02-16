@@ -143,7 +143,10 @@ export function ChampionshipDetail() {
         </DropdownMenu>
       </div>
 
-      <Button className="w-full" disabled>
+      <Button
+        className="w-full"
+        onClick={() => navigate(`/championships/${id}/match-days/new`)}
+      >
         <Plus className="h-4 w-4" />
         {t("championship.newMatchDay")}
       </Button>
