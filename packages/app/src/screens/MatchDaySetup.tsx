@@ -313,9 +313,23 @@ export function MatchDaySetup() {
   }
 
   function navigateToPreview(result: unknown) {
-    const assignedEntries = [...attackers, ...defenders];
-    navigate(`/championships/${id}/match-days/preview`, {
-      state: { result, rosterEntries: assignedEntries },
+    const attackerIds = attackers.map((e) => e.playerId);
+    const defenderIds = defenders.map((e) => e.playerId);
+    const playerMap: Record<string, string> = {};
+    for (const entry of rosterEntries) {
+      playerMap[entry.playerId] = entry.player.displayName;
+    }
+    navigate(`/championships/${id}/match-days/result`, {
+      state: {
+        result,
+        championshipId: id,
+        championshipName: championship!.name,
+        matchDayNumber: history.length + 1,
+        history,
+        attackerIds,
+        defenderIds,
+        playerMap,
+      },
     });
   }
 

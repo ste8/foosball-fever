@@ -25,7 +25,7 @@ export function Router() {
             element={<MatchDaySetup />}
           />
           <Route
-            path="/championships/:id/match-days/preview"
+            path="/championships/:id/match-days/result"
             element={<MatchDayResult />}
           />
           <Route

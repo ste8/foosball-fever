@@ -39,15 +39,15 @@ See `docs/DESIGN.md` for the complete design document covering architecture, dat
 3. ✅ Database layer + repositories
 4. ✅ Championship list (first vertical slice)
 5. ✅ Player registry + roster management
-6. Match day setup + generation
+6. ✅ Match day setup + generation
 7. Pairings result + accept flow
 8. History, detail screens, archive/delete
 
 ## Currently Working On
 
-**Phase 6: Match Day Setup + Generation**
+**Phase 7: Pairings Result + Accept Flow**
 
-The most important and complex screen. See `docs/DESIGN.md` Phase 6, screen designs (4. Match Day Setup), algorithm interface, and Web Worker execution model for full details.
+Result screen, metrics display, regenerate flow, accept and save to database. See `docs/DESIGN.md` Phase 7 and screen design "5. Pairings Result Screen" for full details.
 
 ## Key Conventions
 

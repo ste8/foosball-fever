@@ -1,40 +1,222 @@
+import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { useParams, useLocation, useNavigate } from "react-router-dom";
-import { ArrowLeft, Check } from "lucide-react";
+import {
+  useParams,
+  useLocation,
+  useNavigate,
+  useOutletContext,
+} from "react-router-dom";
+import { RefreshCw, Check, Loader2 } from "lucide-react";
+import { generateTeams } from "@foosball-fever/team-generator";
+import type {
+  GenerationResult,
+  MatchDayHistory,
+} from "@foosball-fever/team-generator";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
+import { GeneratingDialog } from "@/components/GeneratingDialog";
 import { RoleIcon } from "@/components/RoleIcon";
-import type { GenerationResult } from "@foosball-fever/team-generator";
-import type { RosterEntryWithPlayer } from "@/types";
+import { useRepositories } from "@/repositories/RepositoryContext";
+import { useFormatDate } from "@/hooks/useFormatDate";
+import type { LayoutContext } from "@/components/Layout";
+import type { MatchDayWithTeams } from "@/types";
 
-interface PreviewState {
+interface ResultState {
   result: GenerationResult;
-  rosterEntries: RosterEntryWithPlayer[];
+  championshipId: string;
+  championshipName: string;
+  matchDayNumber: number;
+  history: MatchDayHistory[];
+  attackerIds: string[];
+  defenderIds: string[];
+  playerMap: Record<string, string>;
 }
 
 export function MatchDayResult() {
-  const { t } = useTranslation();
-  const { id, matchDayId } = useParams();
+  const { id, matchDayId } = useParams<{ id: string; matchDayId?: string }>();
   const location = useLocation();
-  const navigate = useNavigate();
 
-  const previewState = location.state as PreviewState | null;
+  const state = location.state as ResultState | null;
 
   // Preview mode: coming from generation
-  if (previewState?.result) {
-    const { result, rosterEntries } = previewState;
+  if (state?.result) {
+    return <PreviewMode state={state} />;
+  }
 
-    // Build player lookup from roster entries
-    const playerMap = new Map<string, string>();
-    for (const entry of rosterEntries) {
-      playerMap.set(entry.playerId, entry.player.displayName);
+  // Read-only mode: saved match day
+  if (matchDayId) {
+    return <ReadOnlyMode matchDayId={matchDayId} championshipId={id!} />;
+  }
+
+  // Direct URL access with no state — redirect
+  return <RedirectToChampionship id={id!} />;
+}
+
+function RedirectToChampionship({ id }: { id: string }) {
+  const navigate = useNavigate();
+  useEffect(() => {
+    navigate(`/championships/${id}`, { replace: true });
+  }, [id, navigate]);
+  return null;
+}
+
+function PreviewMode({ state }: { state: ResultState }) {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const formatDate = useFormatDate();
+  const { matchDays: matchDayRepo } = useRepositories();
+
+  const [result, setResult] = useState(state.result);
+  const [generating, setGenerating] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [discardOpen, setDiscardOpen] = useState(false);
+
+  const workerRef = useRef<Worker | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const { setBeforeBack } = useOutletContext<LayoutContext>();
+
+  const {
+    championshipId,
+    championshipName,
+    matchDayNumber,
+    history,
+    attackerIds,
+    defenderIds,
+    playerMap,
+  } = state;
+
+  const today = new Date().toISOString().slice(0, 10);
+
+  // Cleanup worker on unmount
+  useEffect(() => {
+    return () => {
+      workerRef.current?.terminate();
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
+
+  // Intercept header back button with discard confirmation
+  useEffect(() => {
+    setBeforeBack(() => () => setDiscardOpen(true));
+    return () => setBeforeBack(null);
+  }, [setBeforeBack]);
+
+  function handleDiscard() {
+    setDiscardOpen(false);
+    setBeforeBack(null);
+    navigate(-1);
+  }
+
+  function handleRegenerate() {
+    const seed = Math.floor(Math.random() * 2147483647);
+    const input = { attackerIds, defenderIds, history, seed };
+
+    setGenerating(true);
+
+    try {
+      const worker = new Worker(
+        new URL("../workers/generateTeams.worker.ts", import.meta.url),
+        { type: "module" },
+      );
+      workerRef.current = worker;
+
+      worker.onmessage = (e: MessageEvent) => {
+        if (e.data.type === "done") {
+          cleanup();
+          setResult(e.data.result);
+        }
+      };
+
+      worker.onerror = () => {
+        cleanup();
+        const fallback = generateTeams(input);
+        setResult(fallback);
+      };
+
+      worker.postMessage(input);
+
+      timeoutRef.current = setTimeout(() => {
+        worker.terminate();
+        workerRef.current = null;
+        setGenerating(false);
+        const fallback = generateTeams(input);
+        setResult(fallback);
+      }, 5000);
+    } catch {
+      setGenerating(false);
+      const fallback = generateTeams(input);
+      setResult(fallback);
     }
+  }
 
-    return (
-      <div className="p-6 space-y-6">
-        <h1 className="text-2xl font-bold">{t("matchDay.previewTitle")}</h1>
+  function handleStopGeneration() {
+    workerRef.current?.terminate();
+    cleanup();
+    const seed = Math.floor(Math.random() * 2147483647);
+    const fallback = generateTeams({
+      attackerIds,
+      defenderIds,
+      history,
+      seed,
+    });
+    setResult(fallback);
+  }
 
-        {/* Metrics */}
-        <div className="flex gap-4 text-sm text-muted-foreground">
+  function cleanup() {
+    workerRef.current = null;
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+    setGenerating(false);
+  }
+
+  async function handleAccept() {
+    const teams = result.teams.map((team) => ({
+      attackerId: team.attackerId,
+      defenderId: team.defenderId,
+      teamNumber: team.teamNumber,
+    }));
+
+    setSaving(true);
+    try {
+      await matchDayRepo.create(championshipId, matchDayNumber, today, teams);
+      setBeforeBack(null);
+      navigate(`/championships/${championshipId}`, { replace: true });
+    } catch {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="flex flex-col h-full">
+      <div className="flex-1 overflow-y-auto p-6 space-y-4">
+        {/* Header */}
+        <div>
+          <p className="text-sm text-muted-foreground">{championshipName}</p>
+          <h1 className="text-2xl font-bold">
+            {t("matchDay.resultTitle", { number: matchDayNumber })}
+          </h1>
+          <p className="text-sm text-muted-foreground">{formatDate(today)}</p>
+        </div>
+
+        {/* Metrics bar */}
+        <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
+          <span>
+            {t("matchDay.calculationTime", {
+              ms: result.metrics.calculationTimeMs,
+            })}
+          </span>
           <span>
             {t("matchDay.freshMatchDays", {
               count: result.metrics.freshMatchDays,
@@ -48,8 +230,8 @@ export function MatchDayResult() {
           </span>
         </div>
 
-        {/* Teams */}
-        <div className="space-y-2">
+        {/* Team table */}
+        <div className="space-y-1.5">
           {result.teams.map((team) => (
             <div
               key={team.teamNumber}
@@ -61,50 +243,140 @@ export function MatchDayResult() {
               <div className="flex items-center gap-1.5 flex-1 min-w-0">
                 <RoleIcon role="defender" className="shrink-0" />
                 <span className="truncate">
-                  {playerMap.get(team.defenderId) ?? team.defenderId}
+                  {playerMap[team.defenderId] ?? team.defenderId}
                 </span>
               </div>
               <div className="flex items-center gap-1.5 flex-1 min-w-0">
                 <RoleIcon role="attacker" className="shrink-0" />
                 <span className="truncate">
-                  {playerMap.get(team.attackerId) ?? team.attackerId}
+                  {playerMap[team.attackerId] ?? team.attackerId}
                 </span>
               </div>
               {team.lastOccurrence !== undefined && (
                 <span className="text-xs text-muted-foreground whitespace-nowrap">
-                  {team.lastOccurrence}d ago
+                  {t("matchDay.repeated", { count: team.lastOccurrence })}
                 </span>
               )}
             </div>
           ))}
         </div>
+      </div>
 
-        {/* Actions */}
+      {/* Sticky bottom actions */}
+      <div className="sticky bottom-0 border-t bg-background p-4">
         <div className="flex gap-2">
           <Button
             variant="outline"
             className="flex-1"
-            onClick={() => navigate(-1)}
+            onClick={handleRegenerate}
+            disabled={saving}
           >
-            <ArrowLeft className="h-4 w-4" />
+            <RefreshCw className="h-4 w-4" />
             {t("matchDay.regenerate")}
           </Button>
-          <Button className="flex-1" disabled>
-            <Check className="h-4 w-4" />
-            {t("matchDay.accept")}
+          <Button
+            className="flex-1"
+            onClick={handleAccept}
+            disabled={saving}
+          >
+            {saving ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Check className="h-4 w-4" />
+            )}
+            {saving ? t("matchDay.saving") : t("matchDay.accept")}
           </Button>
         </div>
       </div>
-    );
+
+      {/* Dialogs */}
+      <GeneratingDialog open={generating} onStop={handleStopGeneration} />
+
+      <AlertDialog open={discardOpen} onOpenChange={setDiscardOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {t("matchDay.discardConfirmTitle")}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("matchDay.discardConfirmMessage")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("matchDay.keepViewing")}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDiscard}>
+              {t("matchDay.discard")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+}
+
+function ReadOnlyMode({
+  matchDayId,
+  championshipId,
+}: {
+  matchDayId: string;
+  championshipId: string;
+}) {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const formatDate = useFormatDate();
+  const { matchDays: matchDayRepo } = useRepositories();
+
+  const [matchDay, setMatchDay] = useState<MatchDayWithTeams | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    matchDayRepo.getById(matchDayId).then((md) => {
+      if (!md) {
+        navigate(`/championships/${championshipId}`, { replace: true });
+        return;
+      }
+      setMatchDay(md);
+      setLoading(false);
+    });
+  }, [matchDayId, matchDayRepo, championshipId, navigate]);
+
+  if (loading || !matchDay) {
+    return <div className="p-6 text-muted-foreground">Loading...</div>;
   }
 
-  // Saved match day view — placeholder for Phase 7
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold">{t("screen.matchDayResult")}</h1>
-      <p className="mt-2 text-muted-foreground">
-        Championship: {id} / Match Day: {matchDayId}
-      </p>
+    <div className="p-6 space-y-4">
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl font-bold">
+          {t("matchDay.resultTitle", { number: matchDay.matchDayNumber })}
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          {formatDate(matchDay.playedAt)}
+        </p>
+      </div>
+
+      {/* Team table */}
+      <div className="space-y-1.5">
+        {matchDay.teams.map((team) => (
+          <div
+            key={team.teamNumber}
+            className="flex items-center gap-3 rounded-lg border bg-card p-3"
+          >
+            <span className="text-xs font-bold text-muted-foreground w-6 text-center">
+              {team.teamNumber}
+            </span>
+            <div className="flex items-center gap-1.5 flex-1 min-w-0">
+              <RoleIcon role="defender" className="shrink-0" />
+              <span className="truncate">{team.defender.displayName}</span>
+            </div>
+            <div className="flex items-center gap-1.5 flex-1 min-w-0">
+              <RoleIcon role="attacker" className="shrink-0" />
+              <span className="truncate">{team.attacker.displayName}</span>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
