@@ -356,7 +356,7 @@ export function MatchDaySetup() {
   return (
     <div className="flex flex-col h-full">
       {/* Desktop Layout */}
-      <div className="hidden md:flex md:flex-col md:h-full p-6 gap-4">
+      <div className="hidden md:flex md:flex-col md:h-full p-6 gap-4 max-w-5xl mx-auto w-full">
         <p className="text-sm text-muted-foreground">{championship.name}</p>
 
         <div className="grid grid-cols-[1fr_2fr_1fr] gap-4 flex-1 min-h-0">

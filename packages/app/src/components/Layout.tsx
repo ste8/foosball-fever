@@ -12,7 +12,7 @@ export function Layout() {
   return (
     <div className="flex min-h-screen flex-col">
       <GlobalHeader onBack={beforeBack ?? undefined} />
-      <main className="flex-1">
+      <main className="flex-1 mx-auto w-full max-w-3xl">
         <Outlet context={{ setBeforeBack } satisfies LayoutContext} />
       </main>
     </div>
