@@ -84,67 +84,76 @@ export function PlayerRegistry() {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm text-muted-foreground">
-            {t("players.count", { count: playerList.length })}
-          </p>
-        </div>
-        <div className="flex items-center gap-3 text-xs text-muted-foreground">
-          <span className="flex items-center gap-1">
-            <RoleIcon role="defender" />
-            {t("roles.defender")}
-          </span>
-          <span className="flex items-center gap-1">
-            <RoleIcon role="attacker" />
-            {t("roles.attacker")}
-          </span>
+    <div className="flex flex-col h-full">
+      {/* Fixed top controls */}
+      <div className="p-6 pb-4 border-b bg-background">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm text-muted-foreground">
+              {t("players.count", { count: playerList.length })}
+            </p>
+          </div>
+          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1">
+              <RoleIcon role="defender" />
+              {t("roles.defender")}
+            </span>
+            <span className="flex items-center gap-1">
+              <RoleIcon role="attacker" />
+              {t("roles.attacker")}
+            </span>
+          </div>
         </div>
       </div>
 
-      {playerList.length === 0 ? (
-        <div className="rounded-xl border-2 border-dashed border-muted-foreground/25 p-8 text-center">
-          <p className="text-muted-foreground">{t("players.emptyState")}</p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {t("players.emptyStateAction")}
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-1">
-          {playerList.map((p) => (
-            <button
-              key={p.id}
-              type="button"
-              className="flex w-full items-start gap-2 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-accent/50"
-              onClick={() => handleEditClick(p)}
-            >
-              <RoleIcon role={p.preferredRole} className="mt-0.5 shrink-0" />
-              <div className="min-w-0">
-                <div className="font-medium">
-                  {p.firstName} {p.lastName}
-                </div>
-                {p.championships.length > 0 && (
-                  <div className="text-xs text-muted-foreground truncate">
-                    {t("players.inChampionships", {
-                      names: p.championships.map((c) => c.name).join(", "),
-                    })}
+      {/* Scrollable player list */}
+      <div className="flex-1 overflow-y-auto p-6 pt-4">
+        {playerList.length === 0 ? (
+          <div className="rounded-xl border-2 border-dashed border-muted-foreground/25 p-8 text-center">
+            <p className="text-muted-foreground">{t("players.emptyState")}</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {t("players.emptyStateAction")}
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-1">
+            {playerList.map((p) => (
+              <button
+                key={p.id}
+                type="button"
+                className="flex w-full items-start gap-2 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-accent/50"
+                onClick={() => handleEditClick(p)}
+              >
+                <RoleIcon role={p.preferredRole} className="mt-0.5 shrink-0" />
+                <div className="min-w-0">
+                  <div className="font-medium">
+                    {p.firstName} {p.lastName}
                   </div>
-                )}
-              </div>
-            </button>
-          ))}
-        </div>
-      )}
+                  {p.championships.length > 0 && (
+                    <div className="text-xs text-muted-foreground truncate">
+                      {t("players.inChampionships", {
+                        names: p.championships.map((c) => c.name).join(", "),
+                      })}
+                    </div>
+                  )}
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
 
-      <Button
-        variant="outline"
-        className="w-full"
-        onClick={() => setCreateOpen(true)}
-      >
-        <Plus className="h-4 w-4" />
-        {t("players.newPlayer")}
-      </Button>
+      {/* Sticky bottom button */}
+      <div className="sticky bottom-0 border-t bg-background p-4">
+        <Button
+          variant="outline"
+          className="w-full"
+          onClick={() => setCreateOpen(true)}
+        >
+          <Plus className="h-4 w-4" />
+          {t("players.newPlayer")}
+        </Button>
+      </div>
 
       <PlayerFormDialog
         open={createOpen}

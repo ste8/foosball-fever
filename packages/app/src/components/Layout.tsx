@@ -10,9 +10,9 @@ export function Layout() {
   const [beforeBack, setBeforeBack] = useState<(() => void) | null>(null);
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex h-screen flex-col">
       <GlobalHeader onBack={beforeBack ?? undefined} />
-      <main className="flex-1 mx-auto w-full max-w-3xl">
+      <main className="flex-1 overflow-y-auto mx-auto w-full max-w-3xl">
         <Outlet context={{ setBeforeBack } satisfies LayoutContext} />
       </main>
     </div>

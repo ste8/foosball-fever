@@ -356,86 +356,88 @@ export function MatchDaySetup() {
   return (
     <div className="flex flex-col h-full">
       {/* Desktop Layout */}
-      <div className="hidden md:flex md:flex-col md:h-full p-6 gap-4 max-w-5xl mx-auto w-full">
-        <p className="text-sm text-muted-foreground">{championship.name}</p>
+      <div className="hidden md:flex md:flex-col h-full">
+        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+          <p className="text-sm text-muted-foreground">{championship.name}</p>
 
-        <div className="grid grid-cols-[1fr_2fr_1fr] gap-4 flex-1 min-h-0">
-          {/* Left: Defenders */}
-          <div className="flex flex-col min-h-0">
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-primary mb-2 flex items-center gap-1">
-              <RoleIcon role="defender" />
-              {t("matchDay.defenders")} ({defenders.length})
-            </h2>
-            <div className="overflow-y-auto flex-1 space-y-0.5">
-              {defenders.map((entry) => (
-                <button
-                  key={entry.playerId}
-                  type="button"
-                  className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-left hover:bg-accent/50 transition-colors"
-                  onClick={() => focusOnPlayer(entry.playerId)}
-                >
-                  <RoleIcon role="defender" className="shrink-0" />
-                  <span className="truncate">{entry.player.displayName}</span>
-                </button>
-              ))}
+          <div className="grid grid-cols-[1fr_2fr_1fr] gap-4 min-h-0">
+            {/* Left: Defenders */}
+            <div className="flex flex-col min-h-0">
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-primary mb-2 flex items-center gap-1">
+                <RoleIcon role="defender" />
+                {t("matchDay.defenders")} ({defenders.length})
+              </h2>
+              <div className="overflow-y-auto flex-1 space-y-0.5">
+                {defenders.map((entry) => (
+                  <button
+                    key={entry.playerId}
+                    type="button"
+                    className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-left hover:bg-accent/50 transition-colors"
+                    onClick={() => focusOnPlayer(entry.playerId)}
+                  >
+                    <RoleIcon role="defender" className="shrink-0" />
+                    <span className="truncate">{entry.player.displayName}</span>
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
 
-          {/* Center: All Players */}
-          <div className="flex flex-col min-h-0">
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-              {t("matchDay.allPlayers")} ({rosterEntries.length})
-            </h2>
-            <div
-              ref={listRef}
-              className="overflow-y-auto flex-1 space-y-0.5 focus:outline-none"
-              tabIndex={0}
-              onKeyDown={handleKeyDown}
-            >
-              {rosterEntries.map((entry, i) => (
-                <PlayerRoleRow
-                  key={entry.playerId}
-                  displayName={entry.player.displayName}
-                  role={roles.get(entry.playerId)}
-                  preferenceHint={getEffectivePreference(entry)}
-                  isFocused={i === focusedIndex}
-                  onClick={
-                    isTouchPrimary
-                      ? () => cycleRole(entry.playerId)
-                      : () => focusOnPlayer(entry.playerId)
-                  }
-                  onSwipeLeft={() => moveTowardDefender(entry.playerId)}
-                  onSwipeRight={() => moveTowardAttacker(entry.playerId)}
-                />
-              ))}
+            {/* Center: All Players */}
+            <div className="flex flex-col min-h-0">
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+                {t("matchDay.allPlayers")} ({rosterEntries.length})
+              </h2>
+              <div
+                ref={listRef}
+                className="overflow-y-auto flex-1 space-y-0.5 focus:outline-none"
+                tabIndex={0}
+                onKeyDown={handleKeyDown}
+              >
+                {rosterEntries.map((entry, i) => (
+                  <PlayerRoleRow
+                    key={entry.playerId}
+                    displayName={entry.player.displayName}
+                    role={roles.get(entry.playerId)}
+                    preferenceHint={getEffectivePreference(entry)}
+                    isFocused={i === focusedIndex}
+                    onClick={
+                      isTouchPrimary
+                        ? () => cycleRole(entry.playerId)
+                        : () => focusOnPlayer(entry.playerId)
+                    }
+                    onSwipeLeft={() => moveTowardDefender(entry.playerId)}
+                    onSwipeRight={() => moveTowardAttacker(entry.playerId)}
+                  />
+                ))}
+              </div>
             </div>
-          </div>
 
-          {/* Right: Attackers */}
-          <div className="flex flex-col min-h-0">
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-destructive mb-2 flex items-center gap-1">
-              <RoleIcon role="attacker" />
-              {t("matchDay.attackers")} ({attackers.length})
-            </h2>
-            <div className="overflow-y-auto flex-1 space-y-0.5">
-              {attackers.map((entry) => (
-                <button
-                  key={entry.playerId}
-                  type="button"
-                  className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-left hover:bg-accent/50 transition-colors"
-                  onClick={() => focusOnPlayer(entry.playerId)}
-                >
-                  <RoleIcon role="attacker" className="shrink-0" />
-                  <span className="truncate">{entry.player.displayName}</span>
-                </button>
-              ))}
+            {/* Right: Attackers */}
+            <div className="flex flex-col min-h-0">
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-destructive mb-2 flex items-center gap-1">
+                <RoleIcon role="attacker" />
+                {t("matchDay.attackers")} ({attackers.length})
+              </h2>
+              <div className="overflow-y-auto flex-1 space-y-0.5">
+                {attackers.map((entry) => (
+                  <button
+                    key={entry.playerId}
+                    type="button"
+                    className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-left hover:bg-accent/50 transition-colors"
+                    onClick={() => focusOnPlayer(entry.playerId)}
+                  >
+                    <RoleIcon role="attacker" className="shrink-0" />
+                    <span className="truncate">{entry.player.displayName}</span>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Desktop bottom actions */}
-        <div className="space-y-3 pt-2">
-          <div className="flex gap-2">
+        {/* Desktop bottom actions - sticky */}
+        <div className="sticky bottom-0 border-t bg-background p-4 space-y-3">
+          <div className="flex gap-2 max-w-5xl mx-auto">
             <Button
               variant="outline"
               className="flex-1"
@@ -451,19 +453,21 @@ export function MatchDaySetup() {
           </div>
 
           {!isBalanced && (attackers.length > 0 || defenders.length > 0) && (
-            <div className="flex items-center gap-2 rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            <div className="flex items-center gap-2 rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive max-w-5xl mx-auto">
               <AlertTriangle className="h-4 w-4 shrink-0" />
               {t("matchDay.needEqual")}
             </div>
           )}
 
-          <Button
-            className="w-full"
-            disabled={!isBalanced}
-            onClick={handleGenerate}
-          >
-            {t("matchDay.generate")}
-          </Button>
+          <div className="max-w-5xl mx-auto">
+            <Button
+              className="w-full"
+              disabled={!isBalanced}
+              onClick={handleGenerate}
+            >
+              {t("matchDay.generate")}
+            </Button>
+          </div>
         </div>
       </div>
 
