@@ -197,8 +197,11 @@ function PreviewMode({ state }: { state: ResultState }) {
     setSaving(true);
     try {
       await matchDayRepo.create(championshipId, matchDayNumber, today, teams);
-      setBeforeBack(null);
-      navigate(`/championships/${championshipId}`, { replace: true });
+      // Let useEffect cleanup clear beforeBack on unmount.
+      // Navigate on next tick so React finishes the current render cycle first.
+      setTimeout(() => {
+        navigate(`/championships/${championshipId}`, { replace: true });
+      }, 0);
     } catch {
       setSaving(false);
     }
