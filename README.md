@@ -95,4 +95,4 @@ cd packages/team-generator/cli && npm install && npm start
 - **Styling.** Colors and fonts come from CSS variables defined per theme in `packages/app/src/theme/themes/`.
 - **React 19.** The React Compiler handles memoization, so don't add `useMemo`, `useCallback` or `React.memo`.
 
-For the data model, screen designs, algorithm contract and execution model, see [docs/DESIGN.md](docs/DESIGN.md).
+For the data model, screen designs, algorithm contract and execution model, see [docs/DESIGN.md](docs/DESIGN.md). For an illustrated, beginner-friendly walkthrough of how the team generator works (graphs, matchings, BFS and DFS, Hopcroft-Karp, binary search), open [docs/ALGORITHM.html](docs/ALGORITHM.html) in a browser.

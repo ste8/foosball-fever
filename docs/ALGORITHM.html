@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Team Generator Guide</title>
+<style>
+:root{
+  --bg:#fbfaf7;--fg:#1f1e1c;--muted:#6b6a65;--card:#ffffff;--border:#e3e1da;--code:#f1efe8;--accent:#185FA5;
+  --att-bg:#FAECE7;--att-fg:#712B13;--att-st:#D85A30;
+  --def-bg:#EEEDFE;--def-fg:#3C3489;--def-st:#7F77DD;
+  --green:#1D9E75;--red:#E24B4A;--amber:#EF9F27;--edge:#b4b2a9;
+  --ok-bg:#E1F5EE;--ok-fg:#085041;--no-bg:#FCEBEB;--no-fg:#791F1F;--note-bg:#FAEEDA;--note-fg:#633806;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#1c1b19;--fg:#ecebe6;--muted:#a3a19a;--card:#262522;--border:#3a3935;--code:#2c2c2a;--accent:#85B7EB;
+    --att-bg:#4A1B0C;--att-fg:#F5C4B3;--att-st:#D85A30;
+    --def-bg:#26215C;--def-fg:#CECBF6;--def-st:#7F77DD;
+    --edge:#6b6a65;
+    --ok-bg:#04342C;--ok-fg:#9FE1CB;--no-bg:#501313;--no-fg:#F7C1C1;--note-bg:#412402;--note-fg:#FAC775;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+main{max-width:780px;margin:0 auto;padding:40px 16px 80px}
+h1{font-size:30px;line-height:1.25;margin:0 0 8px;font-weight:600}
+h2{font-size:22px;margin:56px 0 8px;font-weight:600;padding-top:8px;border-top:1px solid var(--border)}
+h3{font-size:17px;margin:28px 0 4px;font-weight:600}
+p,li{color:var(--fg)}
+.lead{color:var(--muted);font-size:18px;margin:0 0 24px}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.88em;background:var(--code);padding:1px 5px;border-radius:4px}
+a{color:var(--accent)}
+figure{margin:20px 0;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
+figcaption{font-size:14px;color:var(--muted);margin-top:8px;line-height:1.5}
+svg{display:block;width:100%;height:auto}
+svg text{font-family:inherit}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media (max-width:620px){.two{grid-template-columns:1fr}}
+.callout{border-radius:10px;padding:12px 16px;margin:16px 0;background:var(--note-bg);color:var(--note-fg);font-size:15px}
+.callout b{font-weight:600}
+.toc{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 20px;font-size:15px}
+.toc ol{margin:4px 0;padding-left:20px}
+table{border-collapse:collapse;width:100%;font-size:14px;margin:12px 0}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+th{font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--muted);margin-top:8px}
+.legend span{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.legend svg{width:auto;display:inline-block;flex-shrink:0}
+button{font:inherit;font-size:14px;padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--fg);cursor:pointer}
+button:hover{border-color:var(--muted)}
+button.on{border-color:var(--accent);color:var(--accent)}
+button:disabled{opacity:.4;cursor:default}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px;font-size:14px;color:var(--muted)}
+.hist{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:12px}
+.hc{border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:13px;line-height:1.6;color:var(--muted)}
+.hc.on{background:var(--no-bg);color:var(--no-fg);border-color:var(--red)}
+.hc b{display:block;font-weight:600}
+.status{border-radius:8px;padding:10px 14px;font-size:15px;margin-top:10px}
+.status.ok{background:var(--ok-bg);color:var(--ok-fg)}
+.status.no{background:var(--no-bg);color:var(--no-fg)}
+.status.info{background:var(--code);color:var(--fg)}
+.phase{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.02em;padding:2px 8px;border-radius:6px;background:var(--code);color:var(--muted);margin-right:6px}
+.flow{display:flex;flex-direction:column;align-items:stretch;gap:0;margin:16px 0}
+.flow .step{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:15px}
+.flow .step small{display:block;color:var(--muted);font-size:13px}
+.flow .arrow{text-align:center;color:var(--muted);line-height:1;padding:4px 0}
+.flow .loop{border:1.5px dashed var(--border);border-radius:12px;padding:10px;display:flex;flex-direction:column}
+.flow .loop > .label{font-size:13px;color:var(--muted);margin-bottom:6px}
+.e-allowed{stroke:var(--edge);stroke-width:1.2}
+.e-forbidden{stroke:var(--red);stroke-width:1;stroke-dasharray:4 4;opacity:.6}
+.e-match{stroke:var(--green);stroke-width:4;stroke-linecap:round}
+.e-path{stroke:var(--amber);stroke-width:3;stroke-dasharray:7 5}
+.e-halo{stroke:var(--amber);stroke-width:11;opacity:.4;stroke-linecap:round}
+.n-att rect{fill:var(--att-bg);stroke:var(--att-st);stroke-width:1}
+.n-att text{fill:var(--att-fg)}
+.n-def rect{fill:var(--def-bg);stroke:var(--def-st);stroke-width:1}
+.n-def text{fill:var(--def-fg)}
+.node text{font-size:14px;font-weight:600}
+.node.free rect{stroke-dasharray:4 3;stroke-width:1.5}
+.node.focus rect{stroke:var(--amber);stroke-width:3}
+.node.dim{opacity:.4}
+.lbl{fill:var(--muted);font-size:12px}
+.badge{fill:var(--amber);font-size:12px;font-weight:700}
+</style>
+</head>
+<body>
+<main>
+
+<h1>How the team generator works</h1>
+<p class="lead">A guide to how Foosball Fever picks the teams for a match day, starting from zero. It assumes no knowledge of graph theory. Every new term is explained the first time it appears, with a picture.</p>
+
+<div class="toc">
+<b>Contents</b>
+<ol>
+<li><a href="#problem">The problem</a></li>
+<li><a href="#graphs">Graphs: dots and lines</a></li>
+<li><a href="#matching">Matchings: picking teams from the graph</a></li>
+<li><a href="#history">Turning history into forbidden lines</a></li>
+<li><a href="#greedy">Why the obvious approach gets stuck</a></li>
+<li><a href="#augment">The fix: augmenting paths</a></li>
+<li><a href="#search">Searching a graph: BFS and DFS</a></li>
+<li><a href="#hk">Hopcroft-Karp, step by step</a></li>
+<li><a href="#binary">Binary search: how many match days to avoid</a></li>
+<li><a href="#random">Randomness and seeds</a></li>
+<li><a href="#together">Putting it all together</a></li>
+<li><a href="#limits">Known limitations</a></li>
+<li><a href="#glossary">Glossary</a></li>
+</ol>
+</div>
+
+<!-- ───────────────────────────────────────── -->
+<h2 id="problem">1. The problem</h2>
+<p>On each match day some players are <b>attackers</b> and the same number are <b>defenders</b>. Every team is one attacker plus one defender. The app's job is to choose the teams.</p>
+<p>The goal is <b>variety over a season</b>. If Ale and Elena were a team last week, they should ideally not be a team again this week, or next week, or the week after. More precisely, the generator tries to answer:</p>
+<div class="callout"><b>What is the largest number N such that we can form every team without repeating any pair from the last N match days?</b></div>
+<p>The app calls that number <code>freshMatchDays</code>. To find it, the generator combines three classic ideas, each explained below:</p>
+<ul>
+<li>a <b>graph</b>, to describe who is allowed to team up with whom;</li>
+<li>a <b>matching algorithm</b> (Hopcroft-Karp), to check whether a complete set of teams exists;</li>
+<li>a <b>binary search</b>, to find the largest N quickly.</li>
+</ul>
+
+<!-- ───────────────────────────────────────── -->
+<h2 id="graphs">2. Graphs: dots and lines</h2>
+<p>In computer science a <b>graph</b> is nothing more than dots connected by lines. The dots are called <b>vertices</b> (or nodes) and the lines are called <b>edges</b>. It has nothing to do with charts or plots.</p>
+<p>In our case each player is a dot. We draw a line between an attacker and a defender when <b>those two are allowed to be a team</b>. We never draw a line between two attackers or between two defenders, because a team always has one of each.</p>
+<p>A graph whose dots split into two groups, with lines only going <i>across</i> the groups, is called a <b>bipartite graph</b> ("two parts"). That's our situation exactly: attackers on the left, defenders on the right.</p>
+<figure>
+<div data-bip='{"A":["Ale","Bea","Carlo"],"D":["Elena","Fede","Gio"],"edges":[[0,0],[0,1],[0,2],[1,0],[1,1],[1,2],[2,0],[2,1],[2,2]]}'></div>
+<figcaption>Three attackers, three defenders. With no history, anyone can play with anyone, so there are 3 × 3 = 9 lines. Each line is one possible team.</figcaption>
+</figure>
+
+<!-- ───────────────────────────────────────── -->
+<h2 id="matching">3. Matchings: picking teams from the graph</h2>
+<p>Choosing the teams for one evening means choosing <b>some of the lines</b>, with one rule: <b>each player can be on at most one chosen line</b>. Nobody can be in two teams.</p>
+<p>A set of lines that obeys that rule is called a <b>matching</b>. If every player ends up on a chosen line, it's a <b>perfect matching</b>, which is exactly a complete set of teams for the evening.</p>
+<div class="two">
+<figure>
+<div data-bip='{"A":["Ale","Bea","Carlo"],"D":["Elena","Fede","Gio"],"edges":[[0,0],[0,1],[0,2],[1,0],[1,1],[1,2],[2,0],[2,1],[2,2]],"match":[[0,1],[1,0]],"free":{"a":[2],"d":[2]}}'></div>
+<figcaption>A matching with 2 teams. Carlo and Gio (dashed outline) are left over, so it's not perfect.</figcaption>
+</figure>
+<figure>
+<div data-bip='{"A":["Ale","Bea","Carlo"],"D":["Elena","Fede","Gio"],"edges":[[0,0],[0,1],[0,2],[1,0],[1,1],[1,2],[2,0],[2,1],[2,2]],"match":[[0,1],[1,0],[2,2]]}'></div>
+<figcaption>A perfect matching: every player is in exactly one team.</figcaption>
+</figure>
+</div>
+<p>With all lines present, finding a perfect matching is trivial. The difficulty starts when some lines are missing, which is what history does.</p>
+
+<!-- ───────────────────────────────────────── -->
+<h2 id="history">4. Turning history into forbidden lines</h2>
+<p>To avoid repeating recent teams, the generator <b>deletes the line</b> for every pair that played together in the last N match days. Roles don't matter: if Ale defended and Elena attacked three weeks ago, that pair still counts as "played together".</p>
+<p>Then it asks: <b>with the remaining lines, is there still a perfect matching?</b> Try it below. The example has four attackers, four defenders and three past match days.</p>
+<figure>
+<div class="hist" id="hx-hist"></div>
+<div class="controls">Avoid the last
+<button data-depth="0">0</button><button data-depth="1">1</button><button data-depth="2">2</button><button data-depth="3">3</button>
+match days</div>
+<div id="hx-graph"></div>
+<div class="legend">
+<span><svg width="24" height="8"><line x1="0" y1="4" x2="24" y2="4" class="e-allowed"/></svg>allowed</span>
+<span><svg width="24" height="8"><line x1="0" y1="4" x2="24" y2="4" class="e-forbidden"/></svg>forbidden (played recently)</span>
+<span><svg width="24" height="8"><line x1="0" y1="4" x2="24" y2="4" class="e-match"/></svg>chosen team</span>
+</div>
+<div id="hx-status" class="status"></div>
+<figcaption>The red match days in the history are the ones being avoided. At 3, Ale and Bea both have only Luca left, and Luca can only join one of them, so a full set of teams is impossible. The best this group can do is 2.</figcaption>
+</figure>
+<p>We'll keep using this group. From here on, assume we're checking <b>N = 2</b>. That leaves these allowed pairs:</p>
+<table>
+<tr><th>Attacker</th><th>Can still play with</th></tr>
+<tr><td>Ale</td><td>Elena, Luca</td></tr>
+<tr><td>Bea</td><td>Fede, Luca</td></tr>
+<tr><td>Carlo</td><td>Elena, Gio</td></tr>
+<tr><td>Dani</td><td>Fede, Gio</td></tr>
+</table>
+
+<!-- ───────────────────────────────────────── -->
+<h2 id="greedy">5. Why the obvious approach gets stuck</h2>
+<p>The natural first idea is <b>greedy</b>: go through the attackers in order and give each one the first defender who is still free.</p>
+<figure>
+<div data-bip='{"A":["Ale","Bea","Carlo","Dani"],"D":["Elena","Fede","Gio","Luca"],"edges":[[0,0],[0,3],[1,1],[1,3],[2,0],[2,2],[3,1],[3,2]],"match":[[0,0],[1,1],[2,2]],"free":{"a":[3],"d":[3]},"focus":{"a":[3]}}'></div>
+<figcaption>Greedy: Ale takes Elena, Bea takes Fede, Carlo takes Gio. Now Dani's only options, Fede and Gio, are both taken, and Luca is left alone. Greedy reports "only 3 teams possible".</figcaption>
+</figure>
+<p>But 4 teams <i>are</i> possible: Ale–Elena, Bea–Luca, Carlo–Gio, Dani–Fede. Greedy failed because it never goes back to change an earlier choice. Bea could have taken Luca and left Fede for Dani, but greedy didn't know that when it gave Fede to Bea.</p>
+<p>Trying every possible combination would fix that, but the number of combinations explodes: with 10 attackers there are 3,628,800 ways to pair them. We need something smarter.</p>
+
+<!-- ───────────────────────────────────────── -->
+<h2 id="augment">6. The fix: augmenting paths</h2>
+<p>The smarter idea is to <b>repair</b> a stuck matching by reshuffling a few existing teams. The tool for that is the <b>augmenting path</b>.</p>
+<p>Start from a player who has no team (Dani). Follow a chain of lines that <b>alternates</b>:</p>
+<ol>
+<li>an <b>unused</b> line from Dani to a defender (Fede),</li>
+<li>then the <b>used</b> line from Fede to her current partner (Bea),</li>
+<li>then an <b>unused</b> line from Bea to another defender, and so on,</li>
+</ol>
+<p>until you reach a defender who is <b>also without a team</b> (Luca). That chain is an augmenting path. Click through it below.</p>
+<figure>
+<div class="controls"><button id="ap-prev">Back</button><button id="ap-next">Next</button><span id="ap-count"></span></div>
+<div id="ap-graph"></div>
+<div id="ap-text" class="status info"></div>
+<div class="legend">
+<span><svg width="24" height="8"><line x1="0" y1="4" x2="24" y2="4" class="e-match"/></svg>current team</span>
+<span><svg width="24" height="8"><line x1="0" y1="4" x2="24" y2="4" class="e-path"/></svg>part of the path</span>
+</div>
+</figure>
+<p>Why does flipping always work?</p>
+<ul>
+<li>The path starts and ends at players with no team, so the people at both ends can safely gain a partner.</li>
+<li>Everyone in the middle loses one partner and gains another, so they're still in exactly one team.</li>
+<li>The path has one more unused line than used lines, so flipping gives <b>exactly one more team</b>.</li>
+</ul>
+<div class="callout"><b>The key fact</b> (Berge's theorem, 1957): if a matching is not as large as possible, an augmenting path <i>always</i> exists. So "keep finding augmenting paths and flipping them until none is left" is guaranteed to reach the largest possible matching. If that's smaller than the number of attackers, no complete set of teams exists.</div>
+<p>That leaves one question: how do you <b>find</b> an augmenting path? That's a search problem, which brings us to BFS and DFS.</p>
+
+<!-- ───────────────────────────────────────── -->
+<h2 id="search">7. Searching a graph: BFS and DFS</h2>
+<p>There are two classic ways to explore a graph from a starting point. Picture yourself in a maze looking for an exit.</p>
+<h3>BFS: breadth-first search</h3>
+<p>Explore <b>everything one step away</b> first, then everything two steps away, then three, like ripples spreading in a pond. Each ripple is called a <b>layer</b>. Because you go layer by layer, the first time you reach a target you've found it by the <b>shortest</b> possible route.</p>
+<p>BFS uses a <b>queue</b> (first in, first out, like a line at a shop) to remember which places to visit next.</p>
+<h3>DFS: depth-first search</h3>
+<p>Pick a direction and <b>keep going as deep as possible</b>. When you hit a dead end, step back to the last fork and try the next branch. This is called <b>backtracking</b>. DFS is simple and uses very little memory, but the first route it finds isn't necessarily the shortest.</p>
+<p>DFS is usually written as a function that calls itself (recursion), or with a <b>stack</b> (last in, first out, like a pile of plates).</p>
+<figure>
+<div class="two">
+<div>
+<svg viewBox="0 0 300 220" role="img" aria-label="BFS visiting order">
+<rect x="10" y="20" width="280" height="40" rx="8" fill="var(--code)"/>
+<rect x="10" y="90" width="280" height="40" rx="8" fill="var(--code)"/>
+<rect x="10" y="160" width="280" height="40" rx="8" fill="var(--code)"/>
+<text x="250" y="44" class="lbl">layer 0</text><text x="250" y="114" class="lbl">layer 1</text><text x="250" y="184" class="lbl">layer 2</text>
+<g stroke="var(--edge)" stroke-width="1.5"><line x1="130" y1="58" x2="85" y2="92"/><line x1="140" y1="58" x2="185" y2="92"/><line x1="70" y1="128" x2="50" y2="162"/><line x1="85" y1="128" x2="110" y2="162"/><line x1="195" y1="128" x2="195" y2="162"/></g>
+<g font-weight="700" font-size="15" text-anchor="middle" dominant-baseline="central">
+<circle cx="135" cy="40" r="18" fill="var(--def-bg)" stroke="var(--def-st)"/><text x="135" y="40" fill="var(--def-fg)">1</text>
+<circle cx="75" cy="110" r="18" fill="var(--def-bg)" stroke="var(--def-st)"/><text x="75" y="110" fill="var(--def-fg)">2</text>
+<circle cx="195" cy="110" r="18" fill="var(--def-bg)" stroke="var(--def-st)"/><text x="195" y="110" fill="var(--def-fg)">3</text>
+<circle cx="45" cy="180" r="18" fill="var(--def-bg)" stroke="var(--def-st)"/><text x="45" y="180" fill="var(--def-fg)">4</text>
+<circle cx="115" cy="180" r="18" fill="var(--def-bg)" stroke="var(--def-st)"/><text x="115" y="180" fill="var(--def-fg)">5</text>
+<circle cx="195" cy="180" r="18" fill="var(--def-bg)" stroke="var(--def-st)"/><text x="195" y="180" fill="var(--def-fg)">6</text>
+</g>
+</svg>
+<figcaption><b>BFS</b> visits by layers: the whole of layer 1 before anything in layer 2.</figcaption>
+</div>
+<div>
+<svg viewBox="0 0 300 220" role="img" aria-label="DFS visiting order">
+<g stroke="var(--edge)" stroke-width="1.5"><line x1="130" y1="58" x2="85" y2="92"/><line x1="140" y1="58" x2="185" y2="92"/><line x1="70" y1="128" x2="50" y2="162"/><line x1="85" y1="128" x2="110" y2="162"/><line x1="195" y1="128" x2="195" y2="162"/></g>
+<path d="M118 52 L68 125 L42 198" fill="none" stroke="var(--amber)" stroke-width="2" stroke-dasharray="5 4"/>
+<g font-weight="700" font-size="15" text-anchor="middle" dominant-baseline="central">
+<circle cx="135" cy="40" r="18" fill="var(--att-bg)" stroke="var(--att-st)"/><text x="135" y="40" fill="var(--att-fg)">1</text>
+<circle cx="75" cy="110" r="18" fill="var(--att-bg)" stroke="var(--att-st)"/><text x="75" y="110" fill="var(--att-fg)">2</text>
+<circle cx="195" cy="110" r="18" fill="var(--att-bg)" stroke="var(--att-st)"/><text x="195" y="110" fill="var(--att-fg)">5</text>
+<circle cx="45" cy="180" r="18" fill="var(--att-bg)" stroke="var(--att-st)"/><text x="45" y="180" fill="var(--att-fg)">3</text>
+<circle cx="115" cy="180" r="18" fill="var(--att-bg)" stroke="var(--att-st)"/><text x="115" y="180" fill="var(--att-fg)">4</text>
+<circle cx="195" cy="180" r="18" fill="var(--att-bg)" stroke="var(--att-st)"/><text x="195" y="180" fill="var(--att-fg)">6</text>
+</g>
+</svg>
+<figcaption><b>DFS</b> dives down the left branch first (1, 2, 3), backtracks to 4, then explores the right side (5, 6).</figcaption>
+</div>
+</div>
+<figcaption>Same graph, two visiting orders. The numbers show when each node is visited.</figcaption>
+</figure>
+
+<h3>Searching for an augmenting path</h3>
+<p>When searching for an augmenting path, the "moves" alternate, as in section 6: from an attacker you can go to <b>any allowed defender</b>, and from a defender you <b>must</b> go to her current partner. Running BFS with those rules from Dani in our stuck example gives these layers:</p>
+<figure>
+<svg viewBox="0 0 600 200" role="img" aria-label="BFS layers from Dani">
+<text x="70" y="18" text-anchor="middle" class="lbl">Free attacker</text>
+<text x="210" y="18" text-anchor="middle" class="lbl">Can reach</text>
+<text x="350" y="18" text-anchor="middle" class="lbl">Their partners</text>
+<text x="490" y="18" text-anchor="middle" class="lbl">Can reach</text>
+<line x1="120" y1="100" x2="160" y2="60" class="e-path"/>
+<line x1="120" y1="100" x2="160" y2="140" class="e-allowed"/>
+<line x1="260" y1="60" x2="300" y2="60" class="e-halo"/><line x1="260" y1="60" x2="300" y2="60" class="e-match"/>
+<line x1="260" y1="140" x2="300" y2="140" class="e-match"/>
+<line x1="400" y1="60" x2="440" y2="60" class="e-path"/>
+<line x1="400" y1="140" x2="440" y2="140" class="e-allowed"/>
+<g class="node n-att free"><rect x="20" y="83" width="100" height="34" rx="6"/><text x="70" y="100" text-anchor="middle" dominant-baseline="central">Dani</text></g>
+<g class="node n-def"><rect x="160" y="43" width="100" height="34" rx="6"/><text x="210" y="60" text-anchor="middle" dominant-baseline="central">Fede</text></g>
+<g class="node n-def"><rect x="160" y="123" width="100" height="34" rx="6"/><text x="210" y="140" text-anchor="middle" dominant-baseline="central">Gio</text></g>
+<g class="node n-att"><rect x="300" y="43" width="100" height="34" rx="6"/><text x="350" y="60" text-anchor="middle" dominant-baseline="central">Bea</text></g>
+<g class="node n-att"><rect x="300" y="123" width="100" height="34" rx="6"/><text x="350" y="140" text-anchor="middle" dominant-baseline="central">Carlo</text></g>
+<g class="node n-def free focus"><rect x="440" y="43" width="100" height="34" rx="6"/><text x="490" y="60" text-anchor="middle" dominant-baseline="central">Luca</text></g>
+<g class="node n-def"><rect x="440" y="123" width="100" height="34" rx="6"/><text x="490" y="140" text-anchor="middle" dominant-baseline="central">Elena</text></g>
+<text x="490" y="184" text-anchor="middle" class="lbl">Elena is taken (by Ale)</text>
+<text x="490" y="30" text-anchor="middle" class="badge">free!</text>
+</svg>
+<figcaption>Read left to right: Dani can reach Fede or Gio; they're partnered with Bea and Carlo; Bea can reach Luca, who is free. The highlighted route Dani → Fede → Bea → Luca is the shortest augmenting path.</figcaption>
+</figure>
+
+<!-- ───────────────────────────────────────── -->
+<h2 id="hk">8. Hopcroft-Karp, step by step</h2>
+<p>The simplest matching algorithm just repeats: "find <i>one</i> augmenting path, flip it". That works. <b>Hopcroft-Karp</b> (named after John Hopcroft and Richard Karp, 1973) does the same thing in <b>batches</b>, which makes it faster on big graphs. Each round, called a <b>phase</b>, has two parts:</p>
+<ol>
+<li><b>BFS part</b>: start from <i>all</i> attackers without a team at once and build the layers, as in the picture above. This tells us how long the <b>shortest</b> augmenting paths are, and gives every attacker a layer number.</li>
+<li><b>DFS part</b>: for each free attacker, dive through the layers, always moving to the next layer (never sideways or back), looking for a free defender. Each path found is flipped right away. Players already used by a path in this phase can't be reused, so the paths found in one phase never overlap.</li>
+</ol>
+<p>Phases repeat until the BFS part can't reach any free defender. At that point there are no augmenting paths left, so the matching is the largest possible. Here's the whole run on our example:</p>
+<figure>
+<div class="controls"><button id="hk-prev">Back</button><button id="hk-next">Next</button><span id="hk-count"></span></div>
+<div id="hk-graph"></div>
+<div id="hk-text" class="status info"></div>
+<div class="legend">
+<span><svg width="24" height="8"><line x1="0" y1="4" x2="24" y2="4" class="e-allowed"/></svg>allowed</span>
+<span><svg width="24" height="8"><line x1="0" y1="4" x2="24" y2="4" class="e-match"/></svg>current team</span>
+<span><svg width="24" height="8"><line x1="0" y1="4" x2="24" y2="4" class="e-path"/></svg>path being explored</span>
+<span><svg width="30" height="12"><text x="0" y="10" class="badge">L0</text></svg>BFS layer</span>
+</div>
+</figure>
+<p>Notice that phase 1 behaves exactly like greedy: with no teams yet, the shortest augmenting paths are single lines. Phase 2 is where Hopcroft-Karp beats greedy, by finding the longer path that reshuffles Bea.</p>
+<h3>Why bother with batches?</h3>
+<p>One path at a time can take as many rounds as there are players. Hopcroft-Karp proved that with batching, the number of phases is at most about <b>√(number of players)</b>, so the total work grows like <code>E × √V</code>, where E is the number of lines and V the number of players. For a foosball group of 10 to 30 people this difference is invisible (both take microseconds), but it's the standard, well-tested choice, and the code ported it from the C# version.</p>
+<div class="callout">In the code (<a href="../packages/team-generator/src/hopcroftKarp.ts">hopcroftKarp.ts</a>): <code>bfs()</code> is the BFS part and fills <code>dist[]</code> with each attacker's layer. <code>dfs(u)</code> is the DFS part and only follows a line when <code>dist[next] === dist[u] + 1</code> (the "always move to the next layer" rule). <code>pairLeft[]</code> and <code>pairRight[]</code> store who is partnered with whom. When a DFS gives up on an attacker it sets <code>dist[u] = Infinity</code>, so the same dead end isn't explored twice in one phase.</div>
+
+<!-- ───────────────────────────────────────── -->
+<h2 id="binary">9. Binary search: how many match days to avoid</h2>
+<p>Hopcroft-Karp answers a yes/no question for one value of N: "if we avoid the last N match days, is a complete set of teams possible?" To find the <b>largest</b> N that says yes, we could try N = 1, 2, 3, … until it fails. Binary search gets there in far fewer tries.</p>
+<h3>The property that makes it possible</h3>
+<p>Avoiding more match days only ever <b>removes</b> lines, never adds them. So if N = 7 is impossible, N = 8, 9, 10 are impossible too. The answers look like <b>yes, yes, yes, …, yes, no, no, …, no</b>, with a single switch point. Binary search is the standard way to find a switch point.</p>
+<h3>How it works</h3>
+<p>Keep a range of candidate values (<code>lo</code> to <code>hi</code>). Test the middle one. If it works, the answer is at least that, so throw away the lower half. If it fails, throw away the upper half. Each test halves the range, like guessing a number between 1 and 100 by asking "higher or lower?".</p>
+<figure>
+<svg viewBox="0 0 680 130" role="img" aria-label="Binary search over 0 to 10 match days">
+<g id="bs"></g>
+</svg>
+<figcaption>With 10 match days of history and a real answer of 6: test 5 (works, go higher), test 8 (fails, go lower), test 6 (works), test 7 (fails). The answer is 6, found in 4 tests instead of 7 one-by-one tests. With 40 match days it's about 6 tests instead of 40.</figcaption>
+</figure>
+
+<!-- ───────────────────────────────────────── -->
+<h2 id="random">10. Randomness and seeds</h2>
+<p>Often there are many different complete sets of teams that are all equally fresh. Which one Hopcroft-Karp returns depends on the order in which it looks at each player's lines. To get variety, the generator <b>shuffles</b> every player's list of lines before matching, using the standard <b>Fisher-Yates shuffle</b>.</p>
+<p>The random numbers come from a tiny generator called <code>mulberry32</code>, which starts from a number called the <b>seed</b>. The same seed always produces the same sequence of "random" numbers, so the same input and seed always give the same teams. That makes the tests repeatable. The app picks a new random seed every time you press Generate.</p>
+
+<!-- ───────────────────────────────────────── -->
+<h2 id="together">11. Putting it all together</h2>
+<p>This is what <code>generateTeams()</code> in <a href="../packages/team-generator/src/generateTeams.ts">generateTeams.ts</a> does from start to finish:</p>
+<div class="flow">
+<div class="step">Check the input <small><code>validate()</code>: same number of attackers and defenders, no duplicates, nobody in both roles</small></div>
+<div class="arrow">↓</div>
+<div class="step">Number the players and list each past match day's pairs <small><code>precomputeForbiddenPairs()</code>: one list per match day, most recent first, both role orders included</small></div>
+<div class="arrow">↓</div>
+<div class="loop"><div class="label">Binary search over N (section 9). For each N tried:</div>
+<div class="step">Build the graph without the pairs from the last N match days <small><code>tryMatchAtDepth()</code> and <code>BipartiteGraph</code></small></div>
+<div class="arrow">↓</div>
+<div class="step">Shuffle each player's lines with the seed <small><code>graph.shuffle(rng)</code> (section 10)</small></div>
+<div class="arrow">↓</div>
+<div class="step">Run Hopcroft-Karp. Is everyone in a team? <small><code>hopcroftKarp()</code> (section 8). Yes: remember these teams and try a larger N. No: try a smaller N.</small></div>
+</div>
+<div class="arrow">↓</div>
+<div class="step">Return the teams from the largest N that worked, plus statistics <small><code>freshMatchDays</code> = that N; <code>repeatedCount</code> = how many teams have played together at any point in the history; <code>lastOccurrence</code> = for each team, how many match days ago they last played together</small></div>
+</div>
+<h3>Where it runs in the app</h3>
+<p>The match day setup screen runs <code>generateTeams()</code> in a <b>Web Worker</b> (a background thread), so the screen stays responsive. If you press Stop, or the worker hasn't finished after 5 seconds, the screen runs it again directly on the main thread and uses that result. In practice the worker finishes long before either happens.</p>
+
+<!-- ───────────────────────────────────────── -->
+<h2 id="limits">12. Known limitations</h2>
+<ul>
+<li><b>Older repeats aren't minimized.</b> Once N is fixed, <i>any</i> complete set of teams that avoids the last N match days is accepted. One choice might repeat a pair from N + 1 match days ago while another repeats nothing, and the generator treats them as equally good. Fixing this would mean replacing "yes/no matching" with a <b>minimum-cost matching</b> (for example, the Hungarian algorithm), where repeats cost more the more recent they are. You can see this in section 4: at N = 2 the demo's teams repeat two pairs from match day 1, although a lineup that repeats only one exists (Ale + Luca, Bea + Fede, Carlo + Elena, Dani + Gio).</li>
+<li><b>No partial results.</b> The worker only reports when it's done. Stop doesn't return a "best so far". It starts over on the main thread with a fresh seed, which is still fast at this scale.</li>
+<li><b>N = 0 is solved twice.</b> The code solves N = 0 before the binary search as a fallback, and the binary search may then test 0 again. It's harmless, just a little redundant.</li>
+</ul>
+
+<!-- ───────────────────────────────────────── -->
+<h2 id="glossary">13. Glossary</h2>
+<table>
+<tr><th>Term</th><th>Meaning here</th></tr>
+<tr><td>Graph</td><td>Dots (players) connected by lines (allowed teams).</td></tr>
+<tr><td>Vertex / node</td><td>A dot, meaning one player.</td></tr>
+<tr><td>Edge</td><td>A line, meaning one possible attacker + defender team.</td></tr>
+<tr><td>Bipartite graph</td><td>A graph split into two groups (attackers, defenders) where lines only go across the groups.</td></tr>
+<tr><td>Matching</td><td>A set of lines where nobody appears twice: a valid (maybe incomplete) set of teams.</td></tr>
+<tr><td>Perfect matching</td><td>A matching that includes every player: a complete set of teams.</td></tr>
+<tr><td>Free</td><td>A player not currently in any team.</td></tr>
+<tr><td>Augmenting path</td><td>A chain from a free attacker to a free defender alternating unused and used lines. Flipping it adds one team.</td></tr>
+<tr><td>BFS</td><td>Breadth-first search: explore layer by layer (ripples). Finds shortest routes. Uses a queue.</td></tr>
+<tr><td>DFS</td><td>Depth-first search: go deep, backtrack at dead ends. Uses recursion or a stack.</td></tr>
+<tr><td>Layer</td><td>All the places BFS reaches in the same number of steps. Stored in <code>dist[]</code>.</td></tr>
+<tr><td>Phase</td><td>One round of Hopcroft-Karp: a BFS to build layers, then DFS to flip several shortest augmenting paths.</td></tr>
+<tr><td>Hopcroft-Karp</td><td>A fast algorithm for the largest matching in a bipartite graph, using phases of BFS + DFS.</td></tr>
+<tr><td>Binary search</td><td>Finding a switch point by repeatedly testing the middle and discarding half the range.</td></tr>
+<tr><td>Depth / N / freshMatchDays</td><td>How many of the most recent match days were avoided completely.</td></tr>
+<tr><td>Seed</td><td>The starting number for the random generator. Same seed, same shuffle, same teams.</td></tr>
+</table>
+
+</main>
+
+<script>
+const NS = "http://www.w3.org/2000/svg";
+const A4 = ["Ale","Bea","Carlo","Dani"], D4 = ["Elena","Fede","Gio","Luca"];
+const ALLOWED2 = [[0,0],[0,3],[1,1],[1,3],[2,0],[2,2],[3,1],[3,2]];
+
+function bip(el, s) {
+  const n = Math.max(s.A.length, s.D.length);
+  const H = 44 + n * 52;
+  const yc = i => 61 + i * 52;
+  const has = (list, i) => (list || []).includes(i);
+  const key = (a, d) => a + "," + d;
+  const kinds = new Map();
+  (s.edges || []).forEach(([a, d]) => kinds.set(key(a, d), "allowed"));
+  (s.forbidden || []).forEach(([a, d]) => kinds.set(key(a, d), "forbidden"));
+  (s.path || []).forEach(([a, d]) => kinds.set(key(a, d), "path"));
+  (s.match || []).forEach(([a, d]) => kinds.set(key(a, d), kinds.get(key(a, d)) === "path" ? "pathmatch" : "match"));
+  let o = `<svg viewBox="0 0 520 ${H}" role="img">`;
+  o += `<text x="115" y="20" text-anchor="middle" class="lbl">Attackers</text><text x="405" y="20" text-anchor="middle" class="lbl">Defenders</text>`;
+  const order = ["forbidden", "allowed", "path", "match", "pathmatch"];
+  for (const k of order) for (const [pk, kind] of kinds) {
+    if (kind !== k) continue;
+    const [a, d] = pk.split(",").map(Number);
+    const ln = c => `<line x1="170" y1="${yc(a)}" x2="350" y2="${yc(d)}" class="${c}"/>`;
+    if (kind === "pathmatch") o += ln("e-halo") + ln("e-match");
+    else o += ln("e-" + kind);
+  }
+  const node = (side, i, name) => {
+    const isA = side === "a";
+    const x = isA ? 60 : 350;
+    const cls = ["node", isA ? "n-att" : "n-def"];
+    if (has(s.free && s.free[side], i)) cls.push("free");
+    if (has(s.focus && s.focus[side], i)) cls.push("focus");
+    if (has(s.dim && s.dim[side], i)) cls.push("dim");
+    let g = `<g class="${cls.join(" ")}"><rect x="${x}" y="${yc(i) - 17}" width="110" height="34" rx="6"/><text x="${x + 55}" y="${yc(i)}" text-anchor="middle" dominant-baseline="central">${name}</text></g>`;
+    const lay = s.layers && s.layers[side] && s.layers[side][i];
+    if (lay !== undefined) g += isA
+      ? `<text x="52" y="${yc(i)}" text-anchor="end" dominant-baseline="central" class="badge">${lay}</text>`
+      : `<text x="468" y="${yc(i)}" dominant-baseline="central" class="badge">${lay}</text>`;
+    return g;
+  };
+  s.A.forEach((nm, i) => o += node("a", i, nm));
+  s.D.forEach((nm, i) => o += node("d", i, nm));
+  el.innerHTML = o + "</svg>";
+}
+
+document.querySelectorAll("[data-bip]").forEach(el => bip(el, JSON.parse(el.dataset.bip)));
+
+// Section 4: history explorer
+(function () {
+  const H = [[[0,0],[1,1],[2,2],[3,3]], [[0,1],[1,2],[2,3],[3,0]], [[0,2],[1,0],[2,1],[3,3]]];
+  let depth = 2;
+  const forb = d => { const s = new Set(); H.slice(H.length - d).forEach(m => m.forEach(([a, b]) => s.add(a + "," + b))); return s; };
+  function solve(d) {
+    const f = forb(d), owner = [-1, -1, -1, -1];
+    const tryA = (a, seen) => {
+      for (let b = 0; b < 4; b++) {
+        if (f.has(a + "," + b) || seen[b]) continue;
+        seen[b] = true;
+        if (owner[b] < 0 || tryA(owner[b], seen)) { owner[b] = a; return true; }
+      }
+      return false;
+    };
+    let n = 0; for (let a = 0; a < 4; a++) if (tryA(a, [])) n++;
+    const m = []; owner.forEach((a, b) => { if (a >= 0) m.push([a, b]); });
+    return { n, m, f };
+  }
+  const lastTogether = (a, b) => { for (let j = H.length - 1; j >= 0; j--) if (H[j].some(([x, y]) => x === a && y === b)) return j + 1; return 0; };
+  function render() {
+    document.querySelectorAll("[data-depth]").forEach(b => b.classList.toggle("on", +b.dataset.depth === depth));
+    document.getElementById("hx-hist").innerHTML = H.map((m, i) =>
+      `<div class="hc${i >= H.length - depth ? " on" : ""}"><b>Match day ${i + 1}</b>${m.map(([a, b]) => A4[a] + " + " + D4[b]).join("<br>")}</div>`).join("");
+    const r = solve(depth), ok = r.n === 4;
+    const edges = [], forbidden = [];
+    for (let a = 0; a < 4; a++) for (let d = 0; d < 4; d++) (r.f.has(a + "," + d) ? forbidden : edges).push([a, d]);
+    bip(document.getElementById("hx-graph"), { A: A4, D: D4, edges, forbidden, match: ok ? r.m : [] });
+    const st = document.getElementById("hx-status");
+    if (ok) {
+      const reps = r.m.filter(([a, b]) => lastTogether(a, b)).map(([a, b]) => `${A4[a]} + ${D4[b]} (match day ${lastTogether(a, b)})`);
+      st.className = "status ok";
+      st.textContent = "Perfect matching found: all 4 teams formed. " + (reps.length ? "Pairs repeated from older match days: " + reps.join(", ") + "." : "No pair has played together before.");
+    } else {
+      st.className = "status no";
+      st.textContent = "Impossible: Ale and Bea both have only Luca left, so at most 3 teams can be formed.";
+    }
+  }
+  document.querySelectorAll("[data-depth]").forEach(b => b.onclick = () => { depth = +b.dataset.depth; render(); });
+  render();
+})();
+
+function stepper(prefix, steps) {
+  let i = 0;
+  const prev = document.getElementById(prefix + "-prev"), next = document.getElementById(prefix + "-next");
+  function render() {
+    const s = steps[i];
+    bip(document.getElementById(prefix + "-graph"), Object.assign({ A: A4, D: D4, edges: ALLOWED2 }, s.g));
+    document.getElementById(prefix + "-text").innerHTML = s.t;
+    document.getElementById(prefix + "-count").textContent = `Step ${i + 1} of ${steps.length}`;
+    prev.disabled = i === 0; next.disabled = i === steps.length - 1;
+  }
+  prev.onclick = () => { if (i > 0) { i--; render(); } };
+  next.onclick = () => { if (i < steps.length - 1) { i++; render(); } };
+  render();
+}
+
+// Section 6: augmenting path
+const STUCK = [[0,0],[1,1],[2,2]];
+stepper("ap", [
+  { g: { match: STUCK, free: { a: [3], d: [3] } },
+    t: "Greedy left us here: 3 teams. Dani and Luca (dashed) have no team." },
+  { g: { match: STUCK, path: [[3,1]], free: { a: [3], d: [3] }, focus: { a: [3], d: [1] } },
+    t: "Start at Dani. Take an <b>unused</b> line to a defender: Fede. Fede is already with Bea." },
+  { g: { match: STUCK, path: [[3,1],[1,1]], free: { a: [3], d: [3] }, focus: { a: [3,1], d: [1] } },
+    t: "Follow Fede's <b>used</b> line to her partner, Bea. Can Bea move to someone else?" },
+  { g: { match: STUCK, path: [[3,1],[1,1],[1,3]], free: { a: [3], d: [3] }, focus: { a: [3,1], d: [1,3] } },
+    t: "Take an <b>unused</b> line from Bea to Luca, and Luca is free. That's an augmenting path: Dani → Fede → Bea → Luca." },
+  { g: { match: [[0,0],[1,3],[2,2],[3,1]], focus: { a: [3,1], d: [1,3] } },
+    t: "<b>Flip</b> the path: unused lines become teams (Dani + Fede, Bea + Luca) and the used line is dropped (Bea + Fede). Result: 4 teams, a perfect matching." }
+]);
+
+// Section 8: Hopcroft-Karp
+stepper("hk", [
+  { g: { free: { a: [0,1,2,3], d: [0,1,2,3] } },
+    t: '<span class="phase">Start</span>No teams yet. Everyone is free. The lines are the allowed pairs when avoiding the last 2 match days.' },
+  { g: { free: { a: [0,1,2,3], d: [0,1,2,3] }, layers: { a: { 0: "L0", 1: "L0", 2: "L0", 3: "L0" }, d: { 0: "L1", 1: "L1", 2: "L1", 3: "L1" } } },
+    t: '<span class="phase">Phase 1 · BFS</span>All four attackers are free, so all are layer 0. Every defender is free and one step away, so the shortest augmenting paths have length 1 (a single line).' },
+  { g: { match: [[0,0]], free: { a: [1,2,3], d: [1,2,3] }, focus: { a: [0], d: [0] } },
+    t: '<span class="phase">Phase 1 · DFS</span>Ale: first line goes to Elena, who is free. Path found, flip it: Ale + Elena.' },
+  { g: { match: [[0,0],[1,1]], free: { a: [2,3], d: [2,3] }, focus: { a: [1], d: [1] } },
+    t: '<span class="phase">Phase 1 · DFS</span>Bea: first line goes to Fede, free. Bea + Fede.' },
+  { g: { match: [[0,0],[1,1]], path: [[2,0]], free: { a: [2,3], d: [2,3] }, focus: { a: [2], d: [0] } },
+    t: '<span class="phase">Phase 1 · DFS</span>Carlo: first line goes to Elena, but she was taken in this phase. Continuing through Ale would mean going back to layer 0, which isn\'t allowed, so skip.' },
+  { g: { match: [[0,0],[1,1],[2,2]], free: { a: [3], d: [3] }, focus: { a: [2], d: [2] } },
+    t: '<span class="phase">Phase 1 · DFS</span>Carlo: next line goes to Gio, free. Carlo + Gio.' },
+  { g: { match: [[0,0],[1,1],[2,2]], path: [[3,1],[3,2]], free: { a: [3], d: [3] }, focus: { a: [3] } },
+    t: '<span class="phase">Phase 1 · DFS</span>Dani: Fede and Gio are both taken in this phase. Dead end. Phase 1 ends with 3 teams, the same as greedy.' },
+  { g: { match: [[0,0],[1,1],[2,2]], free: { a: [3], d: [3] }, layers: { a: { 3: "L0", 1: "L1", 2: "L1", 0: "L2" }, d: { 1: "", 3: "free" } } },
+    t: '<span class="phase">Phase 2 · BFS</span>Only Dani is free: layer 0. Dani reaches Fede and Gio, whose partners Bea and Carlo become layer 1. From Bea we reach Luca, who is free, so the shortest augmenting path has 3 lines. (Carlo → Elena → Ale would be layer 2, longer, so it\'s ignored.)' },
+  { g: { match: [[0,0],[1,1],[2,2]], path: [[3,1],[1,1],[1,3]], free: { a: [3], d: [3] }, focus: { a: [3,1], d: [1,3] }, layers: { a: { 3: "L0", 1: "L1", 2: "L1", 0: "L2" } } },
+    t: '<span class="phase">Phase 2 · DFS</span>From Dani, follow the layers: Dani (L0) → Fede → Bea (L1) → Luca (free). Path found.' },
+  { g: { match: [[0,0],[1,3],[2,2],[3,1]], focus: { a: [3,1], d: [1,3] } },
+    t: '<span class="phase">Phase 2 · DFS</span>Flip the path: Dani + Fede, Bea + Luca. Now 4 teams.' },
+  { g: { match: [[0,0],[1,3],[2,2],[3,1]] },
+    t: '<span class="phase">Phase 3 · BFS</span>No attacker is free, so BFS reaches no free defender. The algorithm stops: 4 of 4 teams is a perfect matching, so "avoid the last 2 match days" is possible.' }
+]);
+
+// Section 9: binary search picture
+(function () {
+  const truth = 6, tests = { 5: 1, 8: 2, 6: 3, 7: 4 };
+  let o = "";
+  for (let i = 0; i <= 10; i++) {
+    const x = 35 + i * 56, tested = tests[i] !== undefined || i === 0;
+    const ok = i <= truth;
+    const fill = tested ? (ok ? "var(--ok-bg)" : "var(--no-bg)") : "var(--code)";
+    const fg = tested ? (ok ? "var(--ok-fg)" : "var(--no-fg)") : "var(--muted)";
+    const st = i === truth ? `stroke="var(--green)" stroke-width="3"` : `stroke="var(--border)"`;
+    o += `<rect x="${x}" y="50" width="50" height="40" rx="6" fill="${fill}" ${st}/>`;
+    o += `<text x="${x + 25}" y="70" text-anchor="middle" dominant-baseline="central" font-weight="700" fill="${fg}">${i}</text>`;
+    if (tests[i]) o += `<text x="${x + 25}" y="38" text-anchor="middle" class="badge">test ${tests[i]}</text>`;
+    if (i === 0) o += `<text x="${x + 25}" y="38" text-anchor="middle" class="lbl">always</text>`;
+  }
+  o += `<text x="35" y="115" class="lbl">N = number of recent match days avoided. Green = possible, red = impossible, grey = never tested.</text>`;
+  document.getElementById("bs").innerHTML = o;
+})();
+</script>
+</body>
+</html>
