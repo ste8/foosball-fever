@@ -12,6 +12,7 @@ interface PlayerRow {
   last_name: string;
   display_name: string;
   preferred_role: string | null;
+  archived_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -23,6 +24,7 @@ function rowToPlayer(row: PlayerRow): Player {
     lastName: row.last_name,
     displayName: row.display_name,
     preferredRole: (row.preferred_role ?? undefined) as Player["preferredRole"],
+    archivedAt: row.archived_at ?? undefined,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -32,15 +34,15 @@ export function createPlayerRepository(db: Database): PlayerRepository {
   return {
     async getAll() {
       const rows = await db.query<PlayerRow>(
-        `SELECT id, first_name, last_name, display_name, preferred_role, created_at, updated_at
-         FROM players ORDER BY display_name`,
+        `SELECT id, first_name, last_name, display_name, preferred_role, archived_at, created_at, updated_at
+         FROM players WHERE archived_at IS NULL ORDER BY display_name`,
       );
       return rows.map(rowToPlayer);
     },
 
     async getById(id) {
       const row = await db.queryOne<PlayerRow>(
-        `SELECT id, first_name, last_name, display_name, preferred_role, created_at, updated_at
+        `SELECT id, first_name, last_name, display_name, preferred_role, archived_at, created_at, updated_at
          FROM players WHERE id = :id`,
         { id },
       );
@@ -76,7 +78,7 @@ export function createPlayerRepository(db: Database): PlayerRepository {
 
     async update(id, data: UpdatePlayerData) {
       const existing = await db.queryOne<PlayerRow>(
-        `SELECT id, first_name, last_name, display_name, preferred_role, created_at, updated_at
+        `SELECT id, first_name, last_name, display_name, preferred_role, archived_at, created_at, updated_at
          FROM players WHERE id = :id`,
         { id },
       );
@@ -114,6 +116,7 @@ export function createPlayerRepository(db: Database): PlayerRepository {
         lastName: updated.lastName,
         displayName: updated.displayName,
         preferredRole: (updated.preferredRole ?? undefined) as Player["preferredRole"],
+        archivedAt: existing.archived_at ?? undefined,
         createdAt: existing.created_at,
         updatedAt: now,
       };
@@ -123,9 +126,64 @@ export function createPlayerRepository(db: Database): PlayerRepository {
       await db.execute("DELETE FROM players WHERE id = :id", { id });
     },
 
+    async archive(id) {
+      const now = new Date().toISOString();
+      await db.execute(
+        `UPDATE players SET archived_at = :now, updated_at = :now WHERE id = :id`,
+        { id, now },
+      );
+    },
+
+    async unarchive(id) {
+      const now = new Date().toISOString();
+      await db.execute(
+        `UPDATE players SET archived_at = NULL, updated_at = :now WHERE id = :id`,
+        { id, now },
+      );
+    },
+
     async getAllWithChampionships() {
       const playerRows = await db.query<PlayerRow>(
-        `SELECT id, first_name, last_name, display_name, preferred_role, created_at, updated_at
+        `SELECT id, first_name, last_name, display_name, preferred_role, archived_at, created_at, updated_at
+         FROM players WHERE archived_at IS NULL ORDER BY display_name`,
+      );
+
+      const champRows = await db.query<{
+        player_id: string;
+        championship_id: string;
+        championship_name: string;
+      }>(
+        `SELECT r.player_id, c.id AS championship_id, c.name AS championship_name
+         FROM roster_entries r
+         JOIN championships c ON c.id = r.championship_id
+         WHERE c.deleted_at IS NULL
+         ORDER BY c.created_at DESC`,
+      );
+
+      const champsByPlayer = new Map<
+        string,
+        { id: string; name: string }[]
+      >();
+      for (const row of champRows) {
+        let list = champsByPlayer.get(row.player_id);
+        if (!list) {
+          list = [];
+          champsByPlayer.set(row.player_id, list);
+        }
+        list.push({ id: row.championship_id, name: row.championship_name });
+      }
+
+      return playerRows.map(
+        (row): PlayerWithChampionships => ({
+          ...rowToPlayer(row),
+          championships: champsByPlayer.get(row.id) ?? [],
+        }),
+      );
+    },
+
+    async getAllWithChampionshipsIncludingArchived() {
+      const playerRows = await db.query<PlayerRow>(
+        `SELECT id, first_name, last_name, display_name, preferred_role, archived_at, created_at, updated_at
          FROM players ORDER BY display_name`,
       );
 
@@ -164,9 +222,9 @@ export function createPlayerRepository(db: Database): PlayerRepository {
 
     async getNotInChampionship(championshipId) {
       const rows = await db.query<PlayerRow>(
-        `SELECT p.id, p.first_name, p.last_name, p.display_name, p.preferred_role, p.created_at, p.updated_at
+        `SELECT p.id, p.first_name, p.last_name, p.display_name, p.preferred_role, p.archived_at, p.created_at, p.updated_at
          FROM players p
-         WHERE p.id NOT IN (
+         WHERE p.archived_at IS NULL AND p.id NOT IN (
            SELECT r.player_id FROM roster_entries r WHERE r.championship_id = :championshipId
          )
          ORDER BY p.display_name`,

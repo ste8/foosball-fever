@@ -20,7 +20,10 @@ export interface PlayerRepository {
   create(data: CreatePlayerData): Promise<Player>;
   update(id: string, data: UpdatePlayerData): Promise<Player>;
   delete(id: string): Promise<void>;
+  archive(id: string): Promise<void>;
+  unarchive(id: string): Promise<void>;
   getAllWithChampionships(): Promise<PlayerWithChampionships[]>;
+  getAllWithChampionshipsIncludingArchived(): Promise<PlayerWithChampionships[]>;
   getNotInChampionship(championshipId: string): Promise<Player[]>;
   isInAnyActiveRoster(id: string): Promise<boolean>;
 }

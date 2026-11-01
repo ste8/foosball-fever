@@ -22,7 +22,8 @@ export function PlayerRegistry() {
   const { players } = useRepositories();
   const [, startTransition] = useTransition();
 
-  const [playerList, setPlayerList] = useState<PlayerWithChampionships[]>([]);
+  const [allPlayers, setAllPlayers] = useState<PlayerWithChampionships[]>([]);
+  const [showArchived, setShowArchived] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
   const [editPlayer, setEditPlayer] = useState<PlayerWithChampionships | null>(
     null,
@@ -30,8 +31,11 @@ export function PlayerRegistry() {
   const [canDeleteEdit, setCanDeleteEdit] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
+  const activePlayers = allPlayers.filter((p) => !p.archivedAt);
+  const archivedPlayers = allPlayers.filter((p) => !!p.archivedAt);
+
   function reload() {
-    players.getAllWithChampionships().then(setPlayerList);
+    players.getAllWithChampionshipsIncludingArchived().then(setAllPlayers);
   }
 
   useEffect(() => {
@@ -64,9 +68,11 @@ export function PlayerRegistry() {
 
   function handleEditClick(player: PlayerWithChampionships) {
     setEditPlayer(player);
-    players.isInAnyActiveRoster(player.id).then((inRoster) => {
-      setCanDeleteEdit(!inRoster);
-    });
+    if (!player.archivedAt) {
+      players.isInAnyActiveRoster(player.id).then((inRoster) => {
+        setCanDeleteEdit(!inRoster);
+      });
+    }
   }
 
   async function handleDeleteRequest() {
@@ -83,6 +89,23 @@ export function PlayerRegistry() {
     });
   }
 
+  async function handleArchive() {
+    if (!editPlayer) return;
+    await players.archive(editPlayer.id);
+    setEditPlayer(null);
+    reload();
+  }
+
+  async function handleUnarchive() {
+    if (!editPlayer) return;
+    await players.unarchive(editPlayer.id);
+    setEditPlayer(null);
+    reload();
+  }
+
+  const isEditArchived = !!editPlayer?.archivedAt;
+  const isEditInRoster = !!editPlayer && !isEditArchived && !canDeleteEdit;
+
   return (
     <div className="flex flex-col h-full">
       {/* Fixed top controls */}
@@ -90,7 +113,7 @@ export function PlayerRegistry() {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-muted-foreground">
-              {t("players.count", { count: playerList.length })}
+              {t("players.count", { count: activePlayers.length })}
             </p>
           </div>
           <div className="flex items-center gap-3 text-xs text-muted-foreground">
@@ -108,7 +131,7 @@ export function PlayerRegistry() {
 
       {/* Scrollable player list */}
       <div className="flex-1 overflow-y-auto p-6 pt-4">
-        {playerList.length === 0 ? (
+        {activePlayers.length === 0 && archivedPlayers.length === 0 ? (
           <div className="rounded-xl border-2 border-dashed border-muted-foreground/25 p-8 text-center">
             <p className="text-muted-foreground">{t("players.emptyState")}</p>
             <p className="mt-1 text-sm text-muted-foreground">
@@ -116,30 +139,76 @@ export function PlayerRegistry() {
             </p>
           </div>
         ) : (
-          <div className="space-y-1">
-            {playerList.map((p) => (
-              <button
-                key={p.id}
-                type="button"
-                className="flex w-full items-start gap-2 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-accent/50"
-                onClick={() => handleEditClick(p)}
-              >
-                <RoleIcon role={p.preferredRole} className="mt-0.5 shrink-0" />
-                <div className="min-w-0">
-                  <div className="font-medium">
-                    {p.firstName} {p.lastName}
-                  </div>
-                  {p.championships.length > 0 && (
-                    <div className="text-xs text-muted-foreground truncate">
-                      {t("players.inChampionships", {
-                        names: p.championships.map((c) => c.name).join(", "),
-                      })}
+          <>
+            <div className="space-y-1">
+              {activePlayers.map((p) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  className="flex w-full items-start gap-2 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-accent/50"
+                  onClick={() => handleEditClick(p)}
+                >
+                  <RoleIcon role={p.preferredRole} className="mt-0.5 shrink-0" />
+                  <div className="min-w-0">
+                    <div className="font-medium">
+                      {p.firstName} {p.lastName}
                     </div>
-                  )}
-                </div>
-              </button>
-            ))}
-          </div>
+                    {p.championships.length > 0 && (
+                      <div className="text-xs text-muted-foreground truncate">
+                        {t("players.inChampionships", {
+                          names: p.championships.map((c) => c.name).join(", "),
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            {archivedPlayers.length > 0 && (
+              <div className="mt-4">
+                <button
+                  type="button"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  onClick={() => setShowArchived(!showArchived)}
+                >
+                  {showArchived
+                    ? t("players.hideArchived")
+                    : t("players.showArchived", { count: archivedPlayers.length })}
+                </button>
+
+                {showArchived && (
+                  <div className="space-y-1 mt-2 opacity-60">
+                    {archivedPlayers.map((p) => (
+                      <button
+                        key={p.id}
+                        type="button"
+                        className="flex w-full items-start gap-2 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-accent/50"
+                        onClick={() => handleEditClick(p)}
+                      >
+                        <RoleIcon role={p.preferredRole} className="mt-0.5 shrink-0" />
+                        <div className="min-w-0">
+                          <div className="font-medium">
+                            {p.firstName} {p.lastName}
+                            <span className="ml-2 text-xs font-normal text-muted-foreground">
+                              ({t("players.archived")})
+                            </span>
+                          </div>
+                          {p.championships.length > 0 && (
+                            <div className="text-xs text-muted-foreground truncate">
+                              {t("players.inChampionships", {
+                                names: p.championships.map((c) => c.name).join(", "),
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </>
         )}
       </div>
 
@@ -168,8 +237,9 @@ export function PlayerRegistry() {
         }}
         player={editPlayer ?? undefined}
         onSave={handleUpdate}
-        onDelete={canDeleteEdit ? handleDeleteRequest : undefined}
-        canDelete={canDeleteEdit}
+        onDelete={!isEditArchived && canDeleteEdit ? handleDeleteRequest : undefined}
+        onArchive={isEditInRoster ? handleArchive : undefined}
+        onUnarchive={isEditArchived ? handleUnarchive : undefined}
       />
 
       <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>

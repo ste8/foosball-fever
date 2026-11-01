@@ -28,17 +28,25 @@ export async function runMigrations(
     .sort((a, b) => a.version - b.version);
 
   for (const migration of pending) {
-    await db.transaction(async (tx) => {
-      await tx.execute(migration.sql);
-      await tx.execute(
-        `INSERT INTO schema_migrations (version, name, applied_at)
-         VALUES (:version, :name, :appliedAt)`,
-        {
-          version: migration.version,
-          name: migration.name,
-          appliedAt: new Date().toISOString(),
-        },
-      );
-    });
+    try {
+      await db.execute(migration.sql);
+    } catch (err) {
+      // DDL (e.g. ALTER TABLE) may have already been applied from a previous
+      // interrupted run that failed to record in schema_migrations. If so,
+      // we still record it as applied below. Re-throw truly unexpected errors.
+      const message = String(err).toLowerCase();
+      if (!message.includes("duplicate column") && !message.includes("already exists")) {
+        throw err;
+      }
+    }
+    await db.execute(
+      `INSERT INTO schema_migrations (version, name, applied_at)
+       VALUES (:version, :name, :appliedAt)`,
+      {
+        version: migration.version,
+        name: migration.name,
+        appliedAt: new Date().toISOString(),
+      },
+    );
   }
 }

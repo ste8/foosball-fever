@@ -33,7 +33,7 @@ describe("migration runner", () => {
       applied_at: string;
     }>("SELECT version, name, applied_at FROM schema_migrations");
 
-    expect(migrations).toHaveLength(1);
+    expect(migrations).toHaveLength(sqliteMigrations.length);
     expect(migrations[0].version).toBe(1);
     expect(migrations[0].name).toBe("initial_schema");
     expect(migrations[0].applied_at).toBeTruthy();
@@ -49,7 +49,7 @@ describe("migration runner", () => {
     const migrations = await db.query<{ version: number }>(
       "SELECT version FROM schema_migrations",
     );
-    expect(migrations).toHaveLength(1);
+    expect(migrations).toHaveLength(sqliteMigrations.length);
 
     await db.close();
   });

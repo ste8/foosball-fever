@@ -6,6 +6,7 @@ export interface Player {
   lastName: string;
   displayName: string;
   preferredRole?: Role;
+  archivedAt?: string;
   createdAt: string; // ISO 8601
   updatedAt: string;
 }

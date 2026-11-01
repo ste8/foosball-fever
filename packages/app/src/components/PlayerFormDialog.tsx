@@ -26,14 +26,16 @@ export function PlayerFormDialog({
   player,
   onSave,
   onDelete,
-  canDelete,
+  onArchive,
+  onUnarchive,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   player?: Player;
   onSave: (data: PlayerFormData) => Promise<void>;
   onDelete?: () => Promise<void>;
-  canDelete?: boolean;
+  onArchive?: () => Promise<void>;
+  onUnarchive?: () => Promise<void>;
 }) {
   const { t } = useTranslation();
   const [isPending, startTransition] = useTransition();
@@ -155,11 +157,32 @@ export function PlayerFormDialog({
                 type="button"
                 variant="destructive"
                 onClick={handleDelete}
-                disabled={isPending || !canDelete}
+                disabled={isPending}
                 className="mr-auto"
-                title={!canDelete ? t("players.cannotDelete") : undefined}
               >
                 {t("players.deletePlayer")}
+              </Button>
+            )}
+            {isEdit && onArchive && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onArchive()}
+                disabled={isPending}
+                className="mr-auto"
+              >
+                {t("players.archivePlayer")}
+              </Button>
+            )}
+            {isEdit && onUnarchive && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onUnarchive()}
+                disabled={isPending}
+                className="mr-auto"
+              >
+                {t("players.unarchivePlayer")}
               </Button>
             )}
             <Button

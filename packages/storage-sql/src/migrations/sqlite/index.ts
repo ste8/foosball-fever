@@ -11,4 +11,5 @@ function loadSql(filename: string): string {
 
 export const sqliteMigrations: Migration[] = [
   { version: 1, name: "initial_schema", sql: loadSql("001_initial_schema.sql") },
+  { version: 2, name: "player_archived_at", sql: loadSql("002_player_archived_at.sql") },
 ];

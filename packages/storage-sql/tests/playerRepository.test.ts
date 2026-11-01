@@ -215,6 +215,95 @@ describe("playerRepository", () => {
     });
   });
 
+  describe("archive / unarchive", () => {
+    it("archive sets archivedAt and excludes from getAll", async () => {
+      const player = await ctx.repos.players.create({
+        firstName: "Marco",
+        lastName: "Rossi",
+        displayName: "Marco",
+      });
+
+      await ctx.repos.players.archive(player.id);
+
+      const all = await ctx.repos.players.getAll();
+      expect(all).toHaveLength(0);
+
+      const fetched = await ctx.repos.players.getById(player.id);
+      expect(fetched).not.toBeNull();
+      expect(fetched!.archivedAt).toBeTruthy();
+    });
+
+    it("unarchive clears archivedAt and player reappears in getAll", async () => {
+      const player = await ctx.repos.players.create({
+        firstName: "Marco",
+        lastName: "Rossi",
+        displayName: "Marco",
+      });
+      await ctx.repos.players.archive(player.id);
+
+      await ctx.repos.players.unarchive(player.id);
+
+      const all = await ctx.repos.players.getAll();
+      expect(all).toHaveLength(1);
+      expect(all[0].archivedAt).toBeUndefined();
+    });
+
+    it("getAllWithChampionships excludes archived players", async () => {
+      const p1 = await ctx.repos.players.create({
+        firstName: "Marco",
+        lastName: "R",
+        displayName: "Marco",
+      });
+      await ctx.repos.players.create({
+        firstName: "Anna",
+        lastName: "B",
+        displayName: "Anna",
+      });
+      await ctx.repos.players.archive(p1.id);
+
+      const players = await ctx.repos.players.getAllWithChampionships();
+      expect(players).toHaveLength(1);
+      expect(players[0].displayName).toBe("Anna");
+    });
+
+    it("getAllWithChampionshipsIncludingArchived includes archived players", async () => {
+      const p1 = await ctx.repos.players.create({
+        firstName: "Marco",
+        lastName: "R",
+        displayName: "Marco",
+      });
+      await ctx.repos.players.create({
+        firstName: "Anna",
+        lastName: "B",
+        displayName: "Anna",
+      });
+      await ctx.repos.players.archive(p1.id);
+
+      const players =
+        await ctx.repos.players.getAllWithChampionshipsIncludingArchived();
+      expect(players).toHaveLength(2);
+    });
+
+    it("getNotInChampionship excludes archived players", async () => {
+      const p1 = await ctx.repos.players.create({
+        firstName: "Marco",
+        lastName: "R",
+        displayName: "Marco",
+      });
+      await ctx.repos.players.create({
+        firstName: "Anna",
+        lastName: "B",
+        displayName: "Anna",
+      });
+      const champ = await ctx.repos.championships.create({ name: "Test" });
+      await ctx.repos.players.archive(p1.id);
+
+      const available = await ctx.repos.players.getNotInChampionship(champ.id);
+      expect(available).toHaveLength(1);
+      expect(available[0].displayName).toBe("Anna");
+    });
+  });
+
   describe("isInAnyActiveRoster", () => {
     it("returns false for player not in any roster", async () => {
       const player = await ctx.repos.players.create({
